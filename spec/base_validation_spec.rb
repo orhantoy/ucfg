@@ -1,7 +1,7 @@
 require "json"
 
 RSpec.describe "Base validation" do
-  xit "fails if required property is missing" do
+  it "fails if required property is missing" do
     config = <<-JSON
     {
       "version": "7.9"
