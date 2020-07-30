@@ -6,7 +6,18 @@ module Ucfg
   # Your code goes here...
 
   def self.validate(config, schema)
-    # TODO: Actually implement this method to check the `config` against the `schema`
-    OpenStruct.new(:valid? => true, :errors => [])
+    valid = true
+    errors = []
+
+    if schema.key?('required')
+      schema['required'].each do |required_key|
+        unless config.key?(required_key)
+          valid = false
+          errors << "Required property `#{required_key}` is missing"
+        end
+      end
+    end
+
+    OpenStruct.new(:valid? => valid, :errors => errors)
   end
 end
