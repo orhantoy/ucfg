@@ -1,7 +1,8 @@
+
 # frozen_string_literal: true
 
-require 'ucfg/version'
-require 'ostruct'
+require "ucfg/version"
+require "ostruct"
 
 module Ucfg # rubocop:todo Style/Documentation
   class Error < StandardError; end
@@ -22,6 +23,7 @@ module Ucfg # rubocop:todo Style/Documentation
         end
       end
     end
+
     # fails if additional properties are disabled in schema but still provided
     schema_properties_keys = schema['properties'].keys
     config_keys = config.keys
