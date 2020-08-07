@@ -37,7 +37,7 @@ module Ucfg # rubocop:todo Style/Documentation
     config.merge(schema['properties']) do |key, oldvalue, newvalue|
       if oldvalue.class != newvalue['type'].class
         valid = false
-        errors << "Property `#{key}` must be of type `#{newvalue['type']}`(provided value `#{oldvalue}` of type `boolean`)"
+        errors << "Property `#{key}` must be of type `#{newvalue['type']}` (provided value `#{oldvalue}` of type `boolean`)"
       end
     end
     OpenStruct.new(valid?: valid, errors: errors)
