@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 require "ucfg/version"
@@ -15,8 +14,8 @@ module Ucfg # rubocop:todo Style/Documentation
     errors = []
 
     # fails if required property is missing
-    if schema.key?('required')
-      schema['required'].each do |required_key|
+    if schema.key?("required")
+      schema["required"].each do |required_key|
         unless config.key?(required_key)
           valid = false
           errors << "Required property `#{required_key}` is missing"
@@ -25,9 +24,9 @@ module Ucfg # rubocop:todo Style/Documentation
     end
 
     # fails if additional properties are disabled in schema but still provided
-    schema_properties_keys = schema['properties'].keys
+    schema_properties_keys = schema["properties"].keys
     config_keys = config.keys
-    if schema.key?('additionalProperties') && schema['additionalProperties'] == false
+    if schema.key?("additionalProperties") && schema["additionalProperties"] == false
       config_keys.each do |key|
         unless schema_properties_keys.include?(key)
           valid = false
@@ -36,8 +35,8 @@ module Ucfg # rubocop:todo Style/Documentation
       end
     end
     # fails if string property is provided as other type
-    config.merge(schema['properties']) do |key, oldvalue, newvalue|
-      if oldvalue.class != newvalue['type'].class
+    config.merge(schema["properties"]) do |key, oldvalue, newvalue|
+      if oldvalue.class != newvalue["type"].class
         valid = false
         errors << "Property `#{key}` must be of type `#{newvalue['type']}`(provided value `#{oldvalue}` of type `boolean`)"
       end
