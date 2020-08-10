@@ -101,7 +101,8 @@ RSpec.describe "Base validation" do
   it "passes if config follows schema" do
     config = <<-JSON
     {
-      "name": "ucfg"
+      "name": "ucfg",
+      "enabled": true
     }
     JSON
 
@@ -111,6 +112,9 @@ RSpec.describe "Base validation" do
       "properties": {
         "name": {
           "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
         }
       }
     }
