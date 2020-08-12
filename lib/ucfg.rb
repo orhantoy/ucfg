@@ -10,7 +10,6 @@ module Ucfg # rubocop:todo Style/Documentation
   # rubocop:todo Metrics/AbcSize
   def self.validate(config, schema)
     # rubocop:todo Metrics/CyclomaticComplexity
-    OpenStruct.new(valid?: true, errors: [])
     valid = true
     errors = []
 
@@ -44,6 +43,7 @@ module Ucfg # rubocop:todo Style/Documentation
         end
       end
     end
+    
     OpenStruct.new(valid?: valid, errors: errors)
   end
   # rubocop:enable Metrics/AbcSize
