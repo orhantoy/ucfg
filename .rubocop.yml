@@ -11,3 +11,11 @@
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+
+Layout/LineLength:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: true
+  Exclude:
+    - spec/**/*
