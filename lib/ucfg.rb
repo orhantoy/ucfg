@@ -43,7 +43,28 @@ module Ucfg # rubocop:todo Style/Documentation
         end
       end
     end
-    
+
+    config.each do |key0, value0| #Key0: devotus, value0:{"version": "7.9"}
+      if value0.is_a?(Hash) #true
+        value0.each do |key1, value1| #key1: version, value1: 7.9
+          schema.each do |key2, value2| #key2: properties, value2: "devotus": {....
+            if schema.key?("properties") && value2.is_a?(Object) #true
+              value2.each do |key3, value3| #key3: devotus, value3: {"required": ["name"],...
+                if key3 == key0 && value3.is_a?(Object)
+                  value3.each do |key4, value4| #key4: required, value4: name
+                    if schema[key2][key3].key?("required") && config[key0].values.include?(value4)
+                      valid = false
+                      errors << "Required property `#{key3.value4}` is missing"
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
     OpenStruct.new(valid?: valid, errors: errors)
   end
   # rubocop:enable Metrics/AbcSize

@@ -1,7 +1,7 @@
 require "json"
 
 RSpec.describe "Nested validation" do
-  xit "fails if required property is missing" do
+  it "fails if required property is missing" do
     config = <<-JSON
     {
       "devotus": {
