@@ -75,4 +75,15 @@ module Ucfg # rubocop:todo Style/Documentation
     return "string" if value.is_a?(String)
     return "boolean" if value.is_a?(TrueClass) || value.is_a?(FalseClass)
   end
+
+  #Invoking this function with 
+  #config gives (version, 7.9)
+  #schema gives (required, ["name"], type, string)
+  def key_values(myHash)
+    myHash.each {|key, value|
+    value.is_a?(Hash) ? key_values(value) :
+    puts("#{key}, #{value}")
+  }
+  end
+
 end
