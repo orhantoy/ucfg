@@ -5,6 +5,7 @@ require "ostruct"
 
 module Ucfg # rubocop:todo Style/Documentation
   class Error < StandardError; end
+  # rubocop:todo Metrics/CyclomaticComplexity
   # rubocop:todo Metrics/PerceivedComplexity
   # rubocop:todo Metrics/MethodLength
   # rubocop:todo Metrics/AbcSize
@@ -14,7 +15,6 @@ module Ucfg # rubocop:todo Style/Documentation
   end
 
   def self.validate_recursively(config, schema, config_path)
-    # rubocop:todo Metrics/CyclomaticComplexity
     valid = true
     errors = []
 
@@ -64,6 +64,7 @@ module Ucfg # rubocop:todo Style/Documentation
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength
   # rubocop:enable Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def self.value_type(value)
     return "string" if value.is_a?(String)
