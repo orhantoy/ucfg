@@ -39,7 +39,8 @@ module Ucfg # rubocop:todo Style/Documentation
         end
       end
     end
-    # fails if string property is provided as other type
+
+    # fails if property is provided as other type
     config.each do |key, value|
       if schema["properties"].key?(key) && schema["properties"][key].key?("type")
         if schema["properties"][key]["type"] != value_type(value)
