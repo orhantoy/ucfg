@@ -39,6 +39,7 @@ RSpec.describe "Type validation" do
     expect(Ucfg.validate({ "key_string" => "string value" }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_boolean" => false }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_number" => false }, schema_as_hash)).to_not be_valid
+    expect(Ucfg.validate({ "key_number" => nil }, schema_as_hash)).to_not be_valid
     expect(Ucfg.validate({ "key_number" => 123 }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_null" => false }, schema_as_hash)).to_not be_valid
     expect(Ucfg.validate({ "key_null" => nil }, schema_as_hash)).to be_valid
