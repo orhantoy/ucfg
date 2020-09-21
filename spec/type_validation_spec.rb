@@ -29,7 +29,8 @@ RSpec.describe "Type validation" do
         "key_number": { "type": "number" },
         "key_null": { "type": "null" },
         "key_object": { "type": "object" },
-        "key_array": { "type": "array" }
+        "key_array": { "type": "array" },
+        "key_invalid_type": { "type": "string_and_boolean" }
       }
     }
     JSON
@@ -44,5 +45,6 @@ RSpec.describe "Type validation" do
     expect(Ucfg.validate({ "key_object" => {} }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_array" => ["hey"] }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_array" => {} }, schema_as_hash)).to_not be_valid
+    expect(Ucfg.validate({ "key_invalid_type" => "value" }, schema_as_hash)).to_not be_valid
   end
 end
