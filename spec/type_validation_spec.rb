@@ -3,7 +3,7 @@
 require "json"
 
 RSpec.describe "Type validation" do
-  xit "supports multiple types" do
+  it "supports multiple types" do
     schema = <<-JSON
     {
       "properties": {
@@ -20,7 +20,7 @@ RSpec.describe "Type validation" do
     expect(Ucfg.validate({ "name" => nil }, schema_as_hash).errors).to eq(["Property `name` must be of type `string` or `boolean` (provided `null`)"])
   end
 
-  xit "supports all types" do
+  it "supports all types" do
     schema = <<-JSON
     {
       "properties": {
