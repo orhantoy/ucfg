@@ -66,7 +66,7 @@ module Ucfg # rubocop:todo Style/Documentation
         end
       end
     end
- 
+
     OpenStruct.new(valid?: valid, errors: errors)
   end
   # rubocop:enable Metrics/AbcSize
@@ -83,5 +83,3 @@ module Ucfg # rubocop:todo Style/Documentation
     return "object" if value.is_a?(Object)
   end
 end
-
-
