@@ -37,4 +37,21 @@ RSpec.describe "Enum validation" do
     expect(Ucfg.validate({ "name" => true }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "name" => "false" }, schema_as_hash).errors).to eq(["Property `name` contains an unsupported value (provided `false`)"])
   end
+
+  it "supports const" do
+    schema = <<-JSON
+    {
+      "properties": {
+        "color": {
+          "type": "string",
+          "const": "red"
+        }
+      }
+    }
+    JSON
+    schema_as_hash = JSON.parse(schema)
+
+    expect(Ucfg.validate({ "color" => "red" }, schema_as_hash)).to be_valid
+    expect(Ucfg.validate({ "color" => "yellow" }, schema_as_hash).errors).to eq(["Property `color` must have value `red` (provided `yellow`)"])
+  end
 end

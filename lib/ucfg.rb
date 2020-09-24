@@ -55,6 +55,13 @@ module Ucfg # rubocop:todo Style/Documentation
           errors << "Property `#{(config_path + [key]).join('.')}` contains an unsupported value (provided `#{value}`)"
         end
       end
+
+      if schema["properties"].key?(key) && schema["properties"][key].key?("const")
+        unless schema["properties"][key]["const"] == value
+          valid = false
+          errors << "Property `#{(config_path + [key]).join('.')}` must have value `#{schema['properties'][key]['const']}` (provided `#{value}`)"
+        end
+      end
     end
 
     schema["properties"].each do |key, value|
