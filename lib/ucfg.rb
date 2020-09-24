@@ -48,6 +48,13 @@ module Ucfg # rubocop:todo Style/Documentation
           errors << "Property `#{(config_path + [key]).join('.')}` must be of type `#{schema['properties'][key]['type']}` (provided value `#{value}` of type `#{value_type(value)}`)"
         end
       end
+
+      if schema["properties"].key?(key) && schema["properties"][key].key?("enum") && schema["properties"][key]["enum"].is_a?(Array)
+        unless schema["properties"][key]["enum"].include?(value)
+          valid = false
+          errors << "Property `#{(config_path + [key]).join('.')}` contains an unsupported value (provided `#{value}`)"
+        end
+      end
     end
 
     schema["properties"].each do |key, value|
