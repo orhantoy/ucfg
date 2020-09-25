@@ -44,12 +44,26 @@ module Ucfg # rubocop:todo Style/Documentation
     config.each do |key, value|
       if schema["properties"].key?(key) && schema["properties"][key].key?("type")
         if schema["properties"][key]["type"].is_a?(String) && schema["properties"][key]["type"] == value_type(value)
-          next
+          # All good, just continue
         elsif schema["properties"][key]["type"].is_a?(Array) && schema["properties"][key]["type"].include?(value_type(value))
-          next
+          # All good, just continue
         else
           valid = false
           errors << "Property `#{(config_path + [key]).join('.')}` must be of type #{type_to_sentence(schema['properties'][key]['type'])} (#{value_type_error(value)})"
+        end
+      end
+
+      if schema["properties"].key?(key) && schema["properties"][key].key?("enum") && schema["properties"][key]["enum"].is_a?(Array)
+        unless schema["properties"][key]["enum"].include?(value)
+          valid = false
+          errors << "Property `#{(config_path + [key]).join('.')}` contains an unsupported value (provided `#{value}`)"
+        end
+      end
+
+      if schema["properties"].key?(key) && schema["properties"][key].key?("const")
+        unless schema["properties"][key]["const"] == value
+          valid = false
+          errors << "Property `#{(config_path + [key]).join('.')}` must have value `#{schema['properties'][key]['const']}` (provided `#{value}`)"
         end
       end
     end
