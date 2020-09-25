@@ -53,6 +53,27 @@ module Ucfg # rubocop:todo Style/Documentation
         end
       end
 
+      if schema["properties"].key?(key) && schema["properties"][key].key?("min") && !schema["properties"][key].key?("max") && schema["properties"][key]["min"].is_a?(Numeric) && value.is_a?(Numeric)
+        if schema["properties"][key]["min"] > value
+          valid = false
+          errors << "Property `#{(config_path + [key]).join('.')}` must be greater than or equal to #{schema['properties'][key]['min']} (provided #{value})"
+        end
+      end
+
+      if schema["properties"].key?(key) && schema["properties"][key].key?("max") && !schema["properties"][key].key?("min") && schema["properties"][key]["max"].is_a?(Numeric) && value.is_a?(Numeric)
+        if schema["properties"][key]["max"] < value
+          valid = false
+          errors << "Property `#{(config_path + [key]).join('.')}` must be less than or equal to #{schema['properties'][key]['max']} (provided #{value})"
+        end
+      end
+
+      if schema["properties"].key?(key) && schema["properties"][key].key?("min") && schema["properties"][key].key?("max") && schema["properties"][key]["min"].is_a?(Numeric) && schema["properties"][key]["max"].is_a?(Numeric) && value.is_a?(Numeric)
+        if schema["properties"][key]["min"] > value || schema["properties"][key]["max"] < value
+          valid = false
+          errors << "Property `#{(config_path + [key]).join('.')}` must be between #{schema['properties'][key]['min']} and #{schema['properties'][key]['max']} (provided #{value})"
+        end
+      end
+
       if schema["properties"].key?(key) && schema["properties"][key].key?("enum") && schema["properties"][key]["enum"].is_a?(Array)
         unless schema["properties"][key]["enum"].include?(value)
           valid = false
