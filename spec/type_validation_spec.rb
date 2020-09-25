@@ -3,7 +3,7 @@
 require "json"
 
 RSpec.describe "Type validation" do
-  xit "supports multiple types" do
+  it "supports multiple types" do
     schema = <<-JSON
     {
       "properties": {
@@ -20,7 +20,7 @@ RSpec.describe "Type validation" do
     expect(Ucfg.validate({ "name" => nil }, schema_as_hash).errors).to eq(["Property `name` must be of type `string` or `boolean` (provided `null`)"])
   end
 
-  xit "supports all types" do
+  it "supports all types" do
     schema = <<-JSON
     {
       "properties": {
@@ -29,7 +29,8 @@ RSpec.describe "Type validation" do
         "key_number": { "type": "number" },
         "key_null": { "type": "null" },
         "key_object": { "type": "object" },
-        "key_array": { "type": "array" }
+        "key_array": { "type": "array" },
+        "key_invalid_type": { "type": "string_and_boolean" }
       }
     }
     JSON
@@ -38,11 +39,13 @@ RSpec.describe "Type validation" do
     expect(Ucfg.validate({ "key_string" => "string value" }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_boolean" => false }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_number" => false }, schema_as_hash)).to_not be_valid
+    expect(Ucfg.validate({ "key_number" => nil }, schema_as_hash)).to_not be_valid
     expect(Ucfg.validate({ "key_number" => 123 }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_null" => false }, schema_as_hash)).to_not be_valid
     expect(Ucfg.validate({ "key_null" => nil }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_object" => {} }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_array" => ["hey"] }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "key_array" => {} }, schema_as_hash)).to_not be_valid
+    expect(Ucfg.validate({ "key_invalid_type" => "value" }, schema_as_hash)).to_not be_valid
   end
 end
