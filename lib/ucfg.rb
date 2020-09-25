@@ -44,9 +44,9 @@ module Ucfg # rubocop:todo Style/Documentation
     config.each do |key, value|
       if schema["properties"].key?(key) && schema["properties"][key].key?("type")
         if schema["properties"][key]["type"].is_a?(String) && schema["properties"][key]["type"] == value_type(value)
-          valid = true
+          next
         elsif schema["properties"][key]["type"].is_a?(Array) && schema["properties"][key]["type"].include?(value_type(value))
-          valid = true
+          next
         else
           valid = false
           errors << "Property `#{(config_path + [key]).join('.')}` must be of type #{type_to_sentence(schema['properties'][key]['type'])} (#{value_type_error(value)})"
