@@ -61,6 +61,34 @@ RSpec.describe "Nested validation" do
     expect(result.errors).to eq(["Property `devotus.version` is not supported"])
   end
 
+  it "fails if additional properties schema does not match" do
+    config = <<-JSON
+    {
+      "devotus": {
+        "version": "7.9",
+        "value": 1
+      }
+    }
+    JSON
+
+    schema = <<-JSON
+    {
+      "properties": {
+        "devotus": {
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+    JSON
+
+    result = Ucfg.validate(JSON.parse(config), JSON.parse(schema))
+
+    expect(result.valid?).to eq(false)
+    expect(result.errors).to eq(["Property `devotus.value` must be of type `string` (provided value `1` of type `number`)"])
+  end
+
   it "fails if with multiple errors" do
     config = <<-JSON
     {
