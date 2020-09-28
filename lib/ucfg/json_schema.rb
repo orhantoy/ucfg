@@ -3,6 +3,7 @@
 require "ucfg/json_schema/additional_properties"
 require "ucfg/json_schema/const"
 require "ucfg/json_schema/enum"
+require "ucfg/json_schema/items"
 require "ucfg/json_schema/min_max"
 require "ucfg/json_schema/max"
 require "ucfg/json_schema/min"
@@ -19,6 +20,7 @@ module Ucfg
           JSONSchema::AdditionalProperties,
           JSONSchema::Const,
           JSONSchema::Enum,
+          JSONSchema::Items,
           JSONSchema::Max,
           JSONSchema::Min,
           JSONSchema::MinMax,
