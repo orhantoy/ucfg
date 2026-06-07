@@ -122,12 +122,11 @@ module Ucfg
         current = result
 
         segments[0...-1].each_with_index do |segment, index|
-          existing = current[segment]
           joined_path = (path + segments[0..index]).join(".")
 
-          if existing.nil?
+          if !current.key?(segment)
             current[segment] = {}
-          elsif !existing.is_a?(Hash)
+          elsif !current[segment].is_a?(Hash)
             raise Error, "Key `#{joined_path}` cannot be both a scalar and an object"
           end
 

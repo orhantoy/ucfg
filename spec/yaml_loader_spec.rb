@@ -159,6 +159,15 @@ RSpec.describe Ucfg::YAMLLoader do
       expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /scalar.*object|object.*scalar/i)
     end
 
+    it "raises when an omitted null value is later expanded with dot notation" do
+      yaml = <<~YAML
+        server:
+        server.port: 5432
+      YAML
+
+      expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /scalar.*object|object.*scalar/i)
+    end
+
     it "raises for unsupported flow style collections" do
       yaml = <<~YAML
         items: [one, two]
