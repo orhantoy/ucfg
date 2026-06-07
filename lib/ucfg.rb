@@ -3,9 +3,14 @@
 require "ucfg/version"
 require "ucfg/json_schema"
 require "ucfg/validation_result"
+require "ucfg/yaml_loader"
 
 module Ucfg
   class Error < StandardError; end
+
+  def self.validate_yaml(source, schema)
+    validate(YAMLLoader.load(source), schema)
+  end
 
   def self.validate(config, schema)
     result = JSONSchema.validate_recursively(config, schema, path: [])
