@@ -144,10 +144,39 @@ module Ucfg
             raise Error, "Key `#{full_path}` cannot be both a scalar and an object"
           end
 
+          if existing.is_a?(Hash)
+            merge_mapping_values!(existing, value, path: path + segments)
+            return
+          end
+
           raise Error, "Duplicate key `#{full_path}`"
         end
 
         current[leaf] = value
+      end
+
+      def merge_mapping_values!(target, incoming, path:)
+        incoming.each do |key, incoming_value|
+          full_path = (path + [key]).join(".")
+
+          unless target.key?(key)
+            target[key] = incoming_value
+            next
+          end
+
+          target_value = target[key]
+
+          if target_value.is_a?(Hash) && incoming_value.is_a?(Hash)
+            merge_mapping_values!(target_value, incoming_value, path: path + [key])
+            next
+          end
+
+          if target_value.is_a?(Hash) != incoming_value.is_a?(Hash)
+            raise Error, "Key `#{full_path}` cannot be both a scalar and an object"
+          end
+
+          raise Error, "Duplicate key `#{full_path}`"
+        end
       end
 
       def reject_anchor!(node)
