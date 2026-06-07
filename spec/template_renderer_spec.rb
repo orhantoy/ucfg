@@ -25,7 +25,7 @@ RSpec.describe Ucfg::TemplateRenderer do
     end
 
     it "raises Ucfg::Error for invalid ERB syntax" do
-      source = "value: <%= ENV['API_KEY']"
+      source = "value: <%= ENV['API_KEY' %>"
 
       expect { described_class.render(source, erb: true) }
         .to raise_error(Ucfg::Error, /invalid erb syntax/i)
