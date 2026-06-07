@@ -10,6 +10,7 @@ require "ucfg/json_schema/min_max"
 require "ucfg/json_schema/max"
 require "ucfg/json_schema/min"
 require "ucfg/json_schema/one_of"
+require "ucfg/json_schema/pattern_properties"
 require "ucfg/json_schema/properties"
 require "ucfg/json_schema/required"
 require "ucfg/json_schema/type"
@@ -30,6 +31,7 @@ module Ucfg
           JSONSchema::Min,
           JSONSchema::MinMax,
           JSONSchema::OneOf,
+          JSONSchema::PatternProperties,
           JSONSchema::Required,
           JSONSchema::Type,
           JSONSchema::Properties,
