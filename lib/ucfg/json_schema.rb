@@ -4,12 +4,18 @@ require "ucfg/json_schema/additional_properties"
 require "ucfg/json_schema/const"
 require "ucfg/json_schema/enum"
 require "ucfg/json_schema/items"
+require "ucfg/json_schema/max_items"
+require "ucfg/json_schema/max_length"
 require "ucfg/json_schema/min_max"
+require "ucfg/json_schema/min_items"
+require "ucfg/json_schema/min_length"
 require "ucfg/json_schema/max"
 require "ucfg/json_schema/min"
+require "ucfg/json_schema/pattern"
 require "ucfg/json_schema/properties"
 require "ucfg/json_schema/required"
 require "ucfg/json_schema/type"
+require "ucfg/json_schema/unique_items"
 require "ucfg/validation_result"
 
 module Ucfg
@@ -22,10 +28,16 @@ module Ucfg
           JSONSchema::Enum,
           JSONSchema::Items,
           JSONSchema::Max,
+          JSONSchema::MaxItems,
+          JSONSchema::MaxLength,
           JSONSchema::Min,
           JSONSchema::MinMax,
+          JSONSchema::MinItems,
+          JSONSchema::MinLength,
+          JSONSchema::Pattern,
           JSONSchema::Required,
           JSONSchema::Type,
+          JSONSchema::UniqueItems,
           JSONSchema::Properties,
         ].reduce(empty_result) do |memo, validator|
           result = validator.validate(instance, schema, path: path)
