@@ -18,10 +18,11 @@ module Ucfg
 
   def self.load_files(*paths, erb: false)
     raise Error, "At least one file path must be provided" if paths.empty?
+    merger = config_merger!
 
     paths.reduce({}) do |merged, path|
       loaded = load_file(path, erb: erb)
-      ConfigMerger.merge(merged, loaded)
+      merger.merge(merged, loaded)
     end
   end
 
@@ -33,4 +34,11 @@ module Ucfg
     result = JSONSchema.validate_recursively(config, schema, path: [])
     ValidationResult.from_json_schema_validation(result)
   end
+
+  def self.config_merger!
+    return ConfigMerger if const_defined?(:ConfigMerger) && ConfigMerger.respond_to?(:merge)
+
+    raise Error, "Ucfg::ConfigMerger.merge is not available"
+  end
+  private_class_method :config_merger!
 end

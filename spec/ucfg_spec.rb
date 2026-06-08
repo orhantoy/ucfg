@@ -40,7 +40,7 @@ RSpec.describe Ucfg do
       expect(result).to eq({ "timeout" => 30 })
     end
 
-    it "returns merge output for nested hash preservation" do
+    it "delegates nested hash cases to ConfigMerger and returns its result" do
       allow(described_class).to receive(:load_file).with("base.yml", erb: false).and_return({
                                                                                     "service" => { "host" => "localhost", "port" => 8080 }
                                                                                   })
@@ -66,7 +66,7 @@ RSpec.describe Ucfg do
       expect(result).to eq(final_merged)
     end
 
-    it "returns merge output for array replacement" do
+    it "delegates array cases to ConfigMerger and returns its result" do
       allow(described_class).to receive(:load_file).with("base.yml", erb: false).and_return({ "hosts" => ["a", "b"] })
       allow(described_class).to receive(:load_file).with("override.yml", erb: false).and_return({ "hosts" => ["c"] })
 
@@ -109,6 +109,14 @@ RSpec.describe Ucfg do
     it "raises Ucfg::Error when no paths are provided" do
       expect { described_class.load_files }
         .to raise_error(Ucfg::Error, /at least one file path must be provided/i)
+    end
+
+    it "raises Ucfg::Error when ConfigMerger is unavailable" do
+      hide_const("Ucfg::ConfigMerger") if Object.const_defined?("Ucfg::ConfigMerger")
+      allow(described_class).to receive(:load_file).with("base.yml", erb: false).and_return({})
+
+      expect { described_class.load_files("base.yml") }
+        .to raise_error(Ucfg::Error, /configmerger\.merge is not available/i)
     end
   end
 
