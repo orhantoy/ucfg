@@ -11,7 +11,9 @@ module Ucfg
   class Error < StandardError; end
 
   def self.load_yaml(source, erb: false)
-    rendered = TemplateRenderer.render(source, erb: erb)
+    return YAMLLoader.load(source) unless erb
+
+    rendered = TemplateRenderer.render(source, erb: true)
     YAMLLoader.load(rendered)
   end
 
