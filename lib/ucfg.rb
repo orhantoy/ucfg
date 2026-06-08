@@ -34,7 +34,7 @@ module Ucfg
     raise Error, "At least one file path must be provided" if paths.empty?
 
     paths.reduce({}) do |merged, path|
-      loaded = env ? load_file(path, erb: erb, env: true) : load_file(path, erb: erb)
+      loaded = load_file(path, erb: erb, env: env)
       ConfigMerger.merge(merged, loaded)
     end
   end

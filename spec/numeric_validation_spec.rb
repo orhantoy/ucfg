@@ -191,7 +191,7 @@ RSpec.describe "Numeric validation" do
     )
   end
 
-  it "does not skip min when max is non-numeric" do
+  it "reports invalid max schema values without skipping valid min checks" do
     schema = <<-JSON
     {
       "properties": {
@@ -204,10 +204,15 @@ RSpec.describe "Numeric validation" do
     JSON
     schema_as_hash = JSON.parse(schema)
 
-    expect(Ucfg.validate({ "a" => 2 }, schema_as_hash).errors).to eq(["Property `a` must be greater than or equal to 3 (provided 2)"])
+    expect(Ucfg.validate({ "a" => 2 }, schema_as_hash).errors).to eq(
+      [
+        "Schema keyword `a.max` must be a number",
+        "Property `a` must be greater than or equal to 3 (provided 2)",
+      ],
+    )
   end
 
-  it "does not skip max when min is non-numeric" do
+  it "reports invalid min schema values without skipping valid max checks" do
     schema = <<-JSON
     {
       "properties": {
@@ -220,7 +225,12 @@ RSpec.describe "Numeric validation" do
     JSON
     schema_as_hash = JSON.parse(schema)
 
-    expect(Ucfg.validate({ "a" => 4 }, schema_as_hash).errors).to eq(["Property `a` must be less than or equal to 3 (provided 4)"])
+    expect(Ucfg.validate({ "a" => 4 }, schema_as_hash).errors).to eq(
+      [
+        "Property `a` must be less than or equal to 3 (provided 4)",
+        "Schema keyword `a.min` must be a number",
+      ],
+    )
   end
 
   it "ignores minimum and maximum when instance is not numeric" do
@@ -239,7 +249,7 @@ RSpec.describe "Numeric validation" do
     expect(Ucfg.validate({ "a" => "text" }, schema_as_hash)).to be_valid
   end
 
-  it "ignores invalid minimum and maximum schema values" do
+  it "reports invalid minimum and maximum schema values" do
     schema = <<-JSON
     {
       "properties": {
@@ -252,6 +262,11 @@ RSpec.describe "Numeric validation" do
     JSON
     schema_as_hash = JSON.parse(schema)
 
-    expect(Ucfg.validate({ "a" => 99 }, schema_as_hash)).to be_valid
+    expect(Ucfg.validate({ "a" => 99 }, schema_as_hash).errors).to eq(
+      [
+        "Schema keyword `a.maximum` must be a number",
+        "Schema keyword `a.minimum` must be a number",
+      ],
+    )
   end
 end

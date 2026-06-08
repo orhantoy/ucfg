@@ -8,7 +8,16 @@ module Ucfg
       class << self
         def validate(instance, schema, path:)
           return unless schema.key?("required")
-          return unless schema["required"].is_a?(Array)
+
+          unless schema["required"].is_a?(Array)
+            return JSONSchema.schema_error(path, "required", "must be an array of property names")
+          end
+
+          invalid_required = schema["required"].find { |required_key| !required_key.is_a?(String) }
+          if invalid_required
+            return JSONSchema.schema_error(path, "required", "must contain only property names")
+          end
+
           return unless instance.is_a?(Hash)
 
           schema["required"].reduce(JSONSchema.empty_result) do |memo, required_key|

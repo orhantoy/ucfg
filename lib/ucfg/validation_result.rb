@@ -4,11 +4,10 @@ module Ucfg
   class ValidationResult
     class << self
       def from_json_schema_validation(result)
-        if result.nil?
-          new
-        else
-          new(validation_errors: result.fetch(:validation_errors))
-        end
+        return new if result.nil?
+        return result if result.is_a?(self)
+
+        new(validation_errors: result.fetch(:validation_errors))
       end
     end
 
@@ -21,7 +20,7 @@ module Ucfg
     alias errors validation_errors
 
     def valid?
-      validation_errors.count == 0
+      validation_errors.empty?
     end
 
     def merge!(other)
