@@ -12,12 +12,13 @@ module Ucfg
 
           explicit_properties = schema["properties"].is_a?(Hash) ? schema["properties"] : {}
           pattern_properties = schema["patternProperties"].is_a?(Hash) ? schema["patternProperties"] : {}
-          compiled_patterns = pattern_properties.map { |pattern, _| Regexp.new(pattern) }
+          compiled_patterns, _ = JSONSchema.compile_pattern_properties(pattern_properties, path: path + ["patternProperties"])
+          key_matches_pattern = ->(key) { compiled_patterns.any? { |regex, _| regex.match?(key.to_s) } }
 
           if schema["additionalProperties"] == false
             instance.reduce(JSONSchema.empty_result) do |memo, (key, _)|
               next memo if explicit_properties.key?(key)
-              next memo if compiled_patterns.any? { |regex| regex.match?(key.to_s) }
+              next memo if key_matches_pattern.call(key)
 
               result = JSONSchema.result_with_validation_error("Property `#{(path + [key]).join('.')}` is not supported")
               JSONSchema.combine_results(memo, result)
@@ -25,7 +26,7 @@ module Ucfg
           elsif schema["additionalProperties"].is_a?(Hash)
             instance.reduce(JSONSchema.empty_result) do |memo, (key, _)|
               next memo if explicit_properties.key?(key)
-              next memo if compiled_patterns.any? { |regex| regex.match?(key.to_s) }
+              next memo if key_matches_pattern.call(key)
 
               result = JSONSchema.validate_recursively(instance.fetch(key), schema["additionalProperties"], path: path + [key])
               JSONSchema.combine_results(memo, result)

@@ -124,4 +124,56 @@ RSpec.describe "patternProperties" do
     expect(result.valid?).to eq(false)
     expect(result.errors).to eq(["Property `other` must be of type `number` (provided value `nope` of type `string`)"])
   end
+
+  it "returns a validation error for invalid patternProperties regex" do
+    config = <<-JSON
+    {
+      "x-timeout": 30
+    }
+    JSON
+
+    schema = <<-JSON
+    {
+      "patternProperties": {
+        "[": {
+          "type": "number"
+        }
+      }
+    }
+    JSON
+
+    result = Ucfg.validate(JSON.parse(config), JSON.parse(schema))
+
+    expect(result.valid?).to eq(false)
+    expect(result.errors).to eq(["Pattern `patternProperties.[` is not a valid regular expression"])
+  end
+
+  it "does not crash additionalProperties matching when pattern regex is invalid" do
+    config = <<-JSON
+    {
+      "other": "nope"
+    }
+    JSON
+
+    schema = <<-JSON
+    {
+      "additionalProperties": false,
+      "patternProperties": {
+        "[": {
+          "type": "number"
+        }
+      }
+    }
+    JSON
+
+    result = Ucfg.validate(JSON.parse(config), JSON.parse(schema))
+
+    expect(result.valid?).to eq(false)
+    expect(result.errors).to eq(
+      [
+        "Property `other` is not supported",
+        "Pattern `patternProperties.[` is not a valid regular expression",
+      ],
+    )
+  end
 end

@@ -11,9 +11,9 @@ module Ucfg
           return unless schema["patternProperties"].is_a?(Hash)
           return unless instance.is_a?(Hash)
 
-          compiled_patterns = schema["patternProperties"].map { |pattern, sub_schema| [Regexp.new(pattern), sub_schema] }
+          compiled_patterns, errors = JSONSchema.compile_pattern_properties(schema["patternProperties"], path: path + ["patternProperties"])
 
-          instance.reduce(JSONSchema.empty_result) do |memo, (key, value)|
+          result = instance.reduce(JSONSchema.empty_result) do |memo, (key, value)|
             key_result = compiled_patterns.reduce(JSONSchema.empty_result) do |key_memo, (regex, sub_schema)|
               next key_memo unless regex.match?(key.to_s)
 
@@ -22,6 +22,8 @@ module Ucfg
             end
             JSONSchema.combine_results(memo, key_result)
           end
+
+          JSONSchema.combine_results(errors, result)
         end
       end
     end
