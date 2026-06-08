@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require "psych"
+require "ucfg/env_expander"
 
 module Ucfg
   module YAMLLoader
     class << self
-      def load(source)
+      def load(source, env: false)
         yaml = normalize_source(source)
 
         stream = Psych.parse_stream(yaml)
@@ -15,7 +16,8 @@ module Ucfg
         document = stream.children.first
         raise Error, "YAML document must contain a single root value" unless document&.children&.length == 1
 
-        convert_node(document.children.first, path: [])
+        config = convert_node(document.children.first, path: [])
+        env ? EnvExpander.expand(config) : config
       rescue Psych::SyntaxError => e
         raise Error, "Invalid YAML syntax at line #{e.line}, column #{e.column}: #{e.problem}"
       end

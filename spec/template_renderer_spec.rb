@@ -8,6 +8,27 @@ RSpec.describe Ucfg::TemplateRenderer do
       expect(described_class.render(source, erb: false)).to eq(source)
     end
 
+    it "expands ENV values when environment rendering is enabled" do
+      with_env("API_KEY", "secret-token") do
+        rendered = described_class.render("api_key: ${API_KEY}", env: true)
+
+        expect(rendered).to eq("api_key: secret-token")
+      end
+    end
+
+    it "supports default values when environment rendering is enabled" do
+      with_env("MISSING", nil) do
+        rendered = described_class.render("value: ${MISSING:default}", env: true)
+
+        expect(rendered).to eq("value: default")
+      end
+    end
+
+    it "does not allow ERB and environment rendering at the same time" do
+      expect { described_class.render("value: ${VALUE}", erb: true, env: true) }
+        .to raise_error(Ucfg::Error, /cannot be enabled together/i)
+    end
+
     it "interpolates ENV values when ERB rendering is enabled" do
       with_env("API_KEY", "secret-token") do
         rendered = described_class.render("api_key: <%= ENV['API_KEY'] %>", erb: true)

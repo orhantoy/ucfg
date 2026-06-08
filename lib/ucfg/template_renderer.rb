@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 require "erb"
+require "ucfg/env_expander"
 
 module Ucfg
   module TemplateRenderer
     class << self
-      def render(source, erb: false)
+      def render(source, erb: false, env: false)
         template = normalize_source(source)
+        raise Error, "ERB and environment expansion cannot be enabled together" if erb && env
+
+        return EnvExpander.expand_source(template) if env
         return template unless erb
 
         ERB.new(template).result

@@ -181,6 +181,28 @@ RSpec.describe Ucfg::YAMLLoader do
       )
     end
 
+    it "expands environment values when enabled" do
+      yaml = <<~YAML
+        service.enabled: ${SERVICE_ENABLED:true}
+        service.hosts: ${SERVICE_HOSTS:host1:9200,host2:9200}
+        service.name: app-${SERVICE_ENV:dev}
+      YAML
+
+      with_env("SERVICE_ENV", "prod") do
+        expect(described_class.load(yaml, env: true)).to eq(
+          "service" => {
+            "enabled" => true,
+            "hosts" => ["host1:9200", "host2:9200"],
+            "name" => "app-prod",
+          },
+        )
+      end
+    end
+
+    it "leaves environment expressions untouched unless enabled" do
+      expect(described_class.load("value: ${VALUE:default}\n")).to eq("value" => "${VALUE:default}")
+    end
+
     it "raises for duplicate keys" do
       yaml = <<~YAML
         name: app
@@ -301,6 +323,24 @@ RSpec.describe Ucfg::YAMLLoader do
       YAML
 
       expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /multi-document/i)
+    end
+  end
+
+  def with_env(key, value)
+    original = ENV[key]
+
+    if value.nil?
+      ENV.delete(key)
+    else
+      ENV[key] = value
+    end
+
+    yield
+  ensure
+    if original.nil?
+      ENV.delete(key)
+    else
+      ENV[key] = original
     end
   end
 end
