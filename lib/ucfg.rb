@@ -28,6 +28,15 @@ module Ucfg
     validate(config, schema)
   end
 
+  def self.load_files(*paths, erb: false)
+    raise Error, "At least one file path must be provided" if paths.empty?
+
+    paths.reduce({}) do |merged, path|
+      loaded = load_file(path, erb: erb)
+      ConfigMerger.merge(merged, loaded)
+    end
+  end
+
   def self.validate_yaml(source, schema)
     validate(load_yaml(source), schema)
   end
