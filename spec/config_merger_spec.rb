@@ -81,15 +81,17 @@ RSpec.describe Ucfg::ConfigMerger do
     end
 
     it "returns an independent merged hash" do
-      base = { "a" => { "b" => 1 }, "arr" => [1, 2] }
-      override = { "a" => { "c" => 2 }, "arr" => [3] }
+      base = { "a" => { "b" => 1 }, "arr" => [1, 2], "name" => "base-name" }
+      override = { "a" => { "c" => 2 }, "arr" => [3], "title" => "override-title" }
 
       merged = described_class.merge(base, override)
       merged["a"]["b"] = 99
       merged["arr"] << 4
+      merged["name"] << "-changed"
+      merged["title"] << "-changed"
 
-      expect(base).to eq({ "a" => { "b" => 1 }, "arr" => [1, 2] })
-      expect(override).to eq({ "a" => { "c" => 2 }, "arr" => [3] })
+      expect(base).to eq({ "a" => { "b" => 1 }, "arr" => [1, 2], "name" => "base-name" })
+      expect(override).to eq({ "a" => { "c" => 2 }, "arr" => [3], "title" => "override-title" })
     end
   end
 end

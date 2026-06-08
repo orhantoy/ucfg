@@ -39,6 +39,8 @@ module Ucfg
           value.each_with_object({}) { |(key, nested), copy| copy[key] = deep_clone(nested) }
         when Array
           value.map { |item| deep_clone(item) }
+        when String
+          value.dup
         else
           value
         end
