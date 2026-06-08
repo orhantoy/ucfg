@@ -28,11 +28,11 @@ module Ucfg
         raise Error, "Template source must be a string"
       end
 
-      def expand_string(value, env:)
+      def expand_string(value, env:, parse_whole: true)
         pieces = parse_pieces(value, env: env)
         return value if pieces.nil?
 
-        if pieces.length == 1 && pieces.first[:type] == :expansion
+        if parse_whole && pieces.length == 1 && pieces.first[:type] == :expansion
           return parse_env_value(pieces.first[:value])
         end
 
@@ -59,10 +59,10 @@ module Ucfg
             append_literal(pieces, "$")
             index = dollar_index + 2
           when "}"
-            append_literal(pieces, "}")
+            append_literal(pieces, "$}")
             index = dollar_index + 2
           when "{"
-            close_index = value.index("}", dollar_index + 2)
+            close_index = find_expansion_close(value, dollar_index + 2)
             raise Error, "Missing `}` in environment expansion" unless close_index
 
             expression = value[(dollar_index + 2)...close_index]
@@ -96,9 +96,30 @@ module Ucfg
 
         value = env[name]
         return value if value && !value.empty?
-        return expand_string(default, env: env).to_s unless default.nil?
+        return expand_string(default, env: env, parse_whole: false) unless default.nil?
 
         raise Error, "Environment variable `#{name}` is not set"
+      end
+
+      def find_expansion_close(value, index)
+        depth = 1
+
+        while index < value.length
+          if value[index] == "$" && value[index + 1] == "{"
+            depth += 1
+            index += 2
+            next
+          end
+
+          if value[index] == "}"
+            depth -= 1
+            return index if depth.zero?
+          end
+
+          index += 1
+        end
+
+        nil
       end
 
       def parse_env_value(value)

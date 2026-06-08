@@ -23,6 +23,23 @@ RSpec.describe Ucfg::EnvExpander do
       end
     end
 
+    it "expands nested defaults before applying whole-value typing" do
+      with_env("A", nil) do
+        with_env("B", nil) do
+          expect(described_class.expand("${A:${B:null}}")).to be_nil
+        end
+
+        with_env("HOSTS", "h1,h2") do
+          expect(described_class.expand("${A:${HOSTS}}")).to eq(["h1", "h2"])
+        end
+      end
+    end
+
+    it "preserves dollar-close-brace sequences literally" do
+      expect(described_class.expand("prompt: $}")).to eq("prompt: $}")
+      expect(described_class.expand("prompt: $} ${MISSING:value}")).to eq("prompt: $} value")
+    end
+
     it "parses whole-value environment expansions into scalar values" do
       expect(described_class.expand("${ENABLED:true}")).to eq(true)
       expect(described_class.expand("${REPLICAS:3}")).to eq(3)
