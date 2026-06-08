@@ -10,6 +10,7 @@ require "ucfg/json_schema/min_max"
 require "ucfg/json_schema/max"
 require "ucfg/json_schema/min"
 require "ucfg/json_schema/one_of"
+require "ucfg/json_schema/pattern_properties"
 require "ucfg/json_schema/properties"
 require "ucfg/json_schema/required"
 require "ucfg/json_schema/type"
@@ -30,6 +31,7 @@ module Ucfg
           JSONSchema::Min,
           JSONSchema::MinMax,
           JSONSchema::OneOf,
+          JSONSchema::PatternProperties,
           JSONSchema::Required,
           JSONSchema::Type,
           JSONSchema::Properties,
@@ -52,6 +54,19 @@ module Ucfg
 
       def result_with_validation_error(message)
         { validation_errors: [message] }
+      end
+
+      def compile_pattern_properties(pattern_properties, path:)
+        pattern_properties.reduce([[], empty_result]) do |(compiled_patterns, errors), (pattern, sub_schema)|
+          begin
+            compiled_patterns << [Regexp.new(pattern), sub_schema]
+          rescue RegexpError, TypeError
+            result = result_with_validation_error("Pattern `#{(path + [pattern.to_s]).join('.')}` is not a valid regular expression")
+            errors = combine_results(errors, result)
+          end
+
+          [compiled_patterns, errors]
+        end
       end
     end
   end
