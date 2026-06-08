@@ -36,6 +36,8 @@ module Ucfg
         def handled_by_min_max?(schema)
           schema.key?("min") &&
             schema.key?("max") &&
+            schema["min"].is_a?(Numeric) &&
+            schema["max"].is_a?(Numeric) &&
             !schema.key?("minimum") &&
             !schema.key?("maximum") &&
             !schema.key?("exclusiveMinimum") &&
