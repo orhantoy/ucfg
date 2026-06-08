@@ -19,6 +19,8 @@ module Ucfg
 
         def matching_subschema_count(instance, subschemas, path:)
           subschemas.count do |subschema|
+            next false unless subschema.is_a?(Hash)
+
             result = JSONSchema.validate_recursively(instance, subschema, path: path)
             result.fetch(:validation_errors).empty?
           end

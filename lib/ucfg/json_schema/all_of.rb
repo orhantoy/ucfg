@@ -11,6 +11,8 @@ module Ucfg
           return unless schema["allOf"].is_a?(Array)
 
           schema["allOf"].reduce(JSONSchema.empty_result) do |memo, subschema|
+            next memo unless subschema.is_a?(Hash)
+
             result = JSONSchema.validate_recursively(instance, subschema, path: path)
             JSONSchema.combine_results(memo, result)
           end

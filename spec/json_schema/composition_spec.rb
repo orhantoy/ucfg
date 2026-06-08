@@ -39,6 +39,22 @@ RSpec.describe "JSON Schema composition keywords" do
       expect(result.valid?).to eq(false)
       expect(result.errors).to eq(["Property `value` must match at least one schema in `anyOf`"])
     end
+
+    it "ignores non-object subschemas" do
+      schema = {
+        "properties" => {
+          "value" => {
+            "anyOf" => [
+              nil,
+              "invalid",
+              { "type" => "string" },
+            ],
+          },
+        },
+      }
+
+      expect(Ucfg.validate({ "value" => "text" }, schema)).to be_valid
+    end
   end
 
   describe "oneOf" do
@@ -95,6 +111,22 @@ RSpec.describe "JSON Schema composition keywords" do
       expect(result.valid?).to eq(false)
       expect(result.errors).to eq(["Property `value` must match exactly one schema in `oneOf` (matched 2)"])
     end
+
+    it "ignores non-object subschemas" do
+      schema = {
+        "properties" => {
+          "value" => {
+            "oneOf" => [
+              nil,
+              123,
+              { "type" => "number" },
+            ],
+          },
+        },
+      }
+
+      expect(Ucfg.validate({ "value" => 7 }, schema)).to be_valid
+    end
   end
 
   describe "allOf" do
@@ -133,6 +165,23 @@ RSpec.describe "JSON Schema composition keywords" do
 
       expect(result.valid?).to eq(false)
       expect(result.errors).to eq(["Property `value` must be greater than or equal to 3 (provided 2)"])
+    end
+
+    it "ignores non-object subschemas" do
+      schema = {
+        "properties" => {
+          "value" => {
+            "allOf" => [
+              nil,
+              "invalid",
+              { "type" => "number" },
+              { "min" => 1 },
+            ],
+          },
+        },
+      }
+
+      expect(Ucfg.validate({ "value" => 2 }, schema)).to be_valid
     end
   end
 
