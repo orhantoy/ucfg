@@ -3,6 +3,8 @@
 require "ucfg/version"
 require "ucfg/json_schema"
 require "ucfg/validation_result"
+require "ucfg/file_loader"
+require "ucfg/template_renderer"
 require "ucfg/yaml_loader"
 
 module Ucfg

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "ucfg/json_schema/additional_properties"
+require "ucfg/json_schema/all_of"
+require "ucfg/json_schema/any_of"
 require "ucfg/json_schema/const"
 require "ucfg/json_schema/enum"
 require "ucfg/json_schema/items"
@@ -12,6 +14,7 @@ require "ucfg/json_schema/min_length"
 require "ucfg/json_schema/max"
 require "ucfg/json_schema/min"
 require "ucfg/json_schema/pattern"
+require "ucfg/json_schema/one_of"
 require "ucfg/json_schema/properties"
 require "ucfg/json_schema/required"
 require "ucfg/json_schema/type"
@@ -24,6 +27,8 @@ module Ucfg
       def validate_recursively(instance, schema, path:)
         [
           JSONSchema::AdditionalProperties,
+          JSONSchema::AllOf,
+          JSONSchema::AnyOf,
           JSONSchema::Const,
           JSONSchema::Enum,
           JSONSchema::Items,
@@ -35,6 +40,7 @@ module Ucfg
           JSONSchema::MinItems,
           JSONSchema::MinLength,
           JSONSchema::Pattern,
+          JSONSchema::OneOf,
           JSONSchema::Required,
           JSONSchema::Type,
           JSONSchema::UniqueItems,

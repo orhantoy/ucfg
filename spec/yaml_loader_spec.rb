@@ -141,6 +141,46 @@ RSpec.describe Ucfg::YAMLLoader do
       )
     end
 
+    it "normalizes mixed flat and nested keys regardless of order" do
+      yaml = <<~YAML
+        service.name: ucfg
+        service:
+          enabled: true
+      YAML
+
+      expect(described_class.load(yaml)).to eq(
+        {
+          "service" => {
+            "name" => "ucfg",
+            "enabled" => true,
+          },
+        },
+      )
+    end
+
+    it "supports arrays containing nested objects with dotted keys" do
+      yaml = <<~YAML
+        items:
+          - name: app
+            limits.cpu: 2
+            limits.memory: 512
+      YAML
+
+      expect(described_class.load(yaml)).to eq(
+        {
+          "items" => [
+            {
+              "name" => "app",
+              "limits" => {
+                "cpu" => 2,
+                "memory" => 512,
+              },
+            },
+          ],
+        },
+      )
+    end
+
     it "raises for duplicate keys" do
       yaml = <<~YAML
         name: app
@@ -148,6 +188,16 @@ RSpec.describe Ucfg::YAMLLoader do
       YAML
 
       expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /duplicate key/i)
+    end
+
+    it "raises for duplicate dotted keys in mixed flat and nested mappings" do
+      yaml = <<~YAML
+        service.name: app
+        service:
+          name: other
+      YAML
+
+      expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /duplicate key `service.name`/i)
     end
 
     it "raises when a path is both a scalar and an object" do
