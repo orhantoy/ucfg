@@ -44,4 +44,16 @@ RSpec.describe "JSON Schema shape validation" do
       ],
     )
   end
+
+  it "reports malformed patternProperties subschemas at the pattern path" do
+    schema = {
+      "patternProperties" => {
+        "^x-" => nil,
+      },
+    }
+
+    result = Ucfg.validate({}, schema)
+
+    expect(result.errors).to eq(["Schema keyword `patternProperties.^x-` must be an object"])
+  end
 end

@@ -81,7 +81,7 @@ module Ucfg
       def compile_pattern_properties(pattern_properties, path:)
         pattern_properties.reduce([[], empty_result]) do |(compiled_patterns, errors), (pattern, sub_schema)|
           unless sub_schema.is_a?(Hash)
-            result = schema_error(path + [pattern.to_s], "schema", "must be an object")
+            result = result_with_validation_error("Schema keyword `#{(path + [pattern.to_s]).join('.')}` must be an object")
             errors = combine_results(errors, result)
             next [compiled_patterns, errors]
           end
