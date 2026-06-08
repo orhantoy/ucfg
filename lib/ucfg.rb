@@ -10,6 +10,21 @@ require "ucfg/yaml_loader"
 module Ucfg
   class Error < StandardError; end
 
+  def self.load_file(path, erb: false)
+    source = FileLoader.read(path)
+    rendered = TemplateRenderer.render(source, erb: erb)
+    YAMLLoader.load(rendered)
+  end
+
+  def self.load_files(*paths, erb: false)
+    raise Error, "At least one file path must be provided" if paths.empty?
+
+    paths.reduce({}) do |merged, path|
+      loaded = load_file(path, erb: erb)
+      ConfigMerger.merge(merged, loaded)
+    end
+  end
+
   def self.validate_yaml(source, schema)
     validate(YAMLLoader.load(source), schema)
   end
