@@ -40,7 +40,7 @@ RSpec.describe "JSON Schema composition keywords" do
       expect(result.errors).to eq(["Property `value` must match at least one schema in `anyOf`"])
     end
 
-    it "ignores non-object subschemas" do
+    it "rejects non-object subschemas" do
       schema = {
         "properties" => {
           "value" => {
@@ -53,7 +53,14 @@ RSpec.describe "JSON Schema composition keywords" do
         },
       }
 
-      expect(Ucfg.validate({ "value" => "text" }, schema)).to be_valid
+      result = Ucfg.validate({ "value" => "text" }, schema)
+
+      expect(result.errors).to eq(
+        [
+          "Schema keyword `value.anyOf.0` must be an object",
+          "Schema keyword `value.anyOf.1` must be an object",
+        ],
+      )
     end
   end
 
@@ -112,7 +119,7 @@ RSpec.describe "JSON Schema composition keywords" do
       expect(result.errors).to eq(["Property `value` must match exactly one schema in `oneOf` (matched 2)"])
     end
 
-    it "ignores non-object subschemas" do
+    it "rejects non-object subschemas" do
       schema = {
         "properties" => {
           "value" => {
@@ -125,7 +132,14 @@ RSpec.describe "JSON Schema composition keywords" do
         },
       }
 
-      expect(Ucfg.validate({ "value" => 7 }, schema)).to be_valid
+      result = Ucfg.validate({ "value" => 7 }, schema)
+
+      expect(result.errors).to eq(
+        [
+          "Schema keyword `value.oneOf.0` must be an object",
+          "Schema keyword `value.oneOf.1` must be an object",
+        ],
+      )
     end
   end
 
@@ -167,7 +181,7 @@ RSpec.describe "JSON Schema composition keywords" do
       expect(result.errors).to eq(["Property `value` must be greater than or equal to 3 (provided 2)"])
     end
 
-    it "ignores non-object subschemas" do
+    it "rejects non-object subschemas" do
       schema = {
         "properties" => {
           "value" => {
@@ -181,7 +195,14 @@ RSpec.describe "JSON Schema composition keywords" do
         },
       }
 
-      expect(Ucfg.validate({ "value" => 2 }, schema)).to be_valid
+      result = Ucfg.validate({ "value" => 2 }, schema)
+
+      expect(result.errors).to eq(
+        [
+          "Schema keyword `value.allOf.0` must be an object",
+          "Schema keyword `value.allOf.1` must be an object",
+        ],
+      )
     end
   end
 

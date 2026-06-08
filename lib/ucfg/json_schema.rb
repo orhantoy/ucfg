@@ -24,30 +24,36 @@ require "ucfg/validation_result"
 
 module Ucfg
   module JSONSchema
+    VALIDATORS = [
+      JSONSchema::PatternProperties,
+      JSONSchema::AdditionalProperties,
+      JSONSchema::AllOf,
+      JSONSchema::AnyOf,
+      JSONSchema::Const,
+      JSONSchema::Enum,
+      JSONSchema::Items,
+      JSONSchema::Max,
+      JSONSchema::MaxItems,
+      JSONSchema::MaxLength,
+      JSONSchema::Min,
+      JSONSchema::MinMax,
+      JSONSchema::MinItems,
+      JSONSchema::MinLength,
+      JSONSchema::Pattern,
+      JSONSchema::OneOf,
+      JSONSchema::Required,
+      JSONSchema::Type,
+      JSONSchema::UniqueItems,
+      JSONSchema::Properties,
+    ].freeze
+
     class << self
       def validate_recursively(instance, schema, path:)
-        [
-          JSONSchema::AdditionalProperties,
-          JSONSchema::AllOf,
-          JSONSchema::AnyOf,
-          JSONSchema::Const,
-          JSONSchema::Enum,
-          JSONSchema::Items,
-          JSONSchema::Max,
-          JSONSchema::MaxItems,
-          JSONSchema::MaxLength,
-          JSONSchema::Min,
-          JSONSchema::MinMax,
-          JSONSchema::MinItems,
-          JSONSchema::MinLength,
-          JSONSchema::Pattern,
-          JSONSchema::OneOf,
-          JSONSchema::PatternProperties,
-          JSONSchema::Required,
-          JSONSchema::Type,
-          JSONSchema::UniqueItems,
-          JSONSchema::Properties,
-        ].reduce(empty_result) do |memo, validator|
+        unless schema.is_a?(Hash)
+          return schema_error(path, "schema", "must be an object")
+        end
+
+        VALIDATORS.reduce(empty_result) do |memo, validator|
           result = validator.validate(instance, schema, path: path)
           combine_results(memo, result)
         end
@@ -57,19 +63,29 @@ module Ucfg
         return a if b.nil?
         return b if a.nil?
 
-        { validation_errors: a.fetch(:validation_errors) + b.fetch(:validation_errors) }
+        ValidationResult.new(validation_errors: a.validation_errors + b.validation_errors)
       end
 
       def empty_result
-        { validation_errors: [] }
+        ValidationResult.new
       end
 
       def result_with_validation_error(message)
-        { validation_errors: [message] }
+        ValidationResult.new(validation_errors: [message])
+      end
+
+      def schema_error(path, keyword, expectation)
+        result_with_validation_error("Schema keyword `#{schema_path(path, keyword)}` #{expectation}")
       end
 
       def compile_pattern_properties(pattern_properties, path:)
         pattern_properties.reduce([[], empty_result]) do |(compiled_patterns, errors), (pattern, sub_schema)|
+          unless sub_schema.is_a?(Hash)
+            result = result_with_validation_error("Schema keyword `#{(path + [pattern.to_s]).join('.')}` must be an object")
+            errors = combine_results(errors, result)
+            next [compiled_patterns, errors]
+          end
+
           begin
             compiled_patterns << [Regexp.new(pattern), sub_schema]
           rescue RegexpError, TypeError
@@ -79,6 +95,10 @@ module Ucfg
 
           [compiled_patterns, errors]
         end
+      end
+
+      def schema_path(path, keyword)
+        (path + [keyword]).join(".")
       end
     end
   end

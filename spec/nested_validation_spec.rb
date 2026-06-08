@@ -86,7 +86,7 @@ RSpec.describe "Nested validation" do
     result = Ucfg.validate(JSON.parse(config), JSON.parse(schema))
 
     expect(result.valid?).to eq(false)
-    expect(result.errors).to eq(["Property `devotus.value` must be of type `string` (provided value `1` of type `number`)"])
+    expect(result.errors).to eq(["Property `devotus.value` must be of type `string` (provided value `1` of type `integer`)"])
   end
 
   it "fails if with multiple errors" do

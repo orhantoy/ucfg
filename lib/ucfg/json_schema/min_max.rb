@@ -8,10 +8,6 @@ module Ucfg
       class << self
         def validate(instance, schema, path:)
           return unless exact_legacy_range?(schema)
-          return unless schema.key?("min")
-          return unless schema.key?("max")
-          return unless schema["min"].is_a?(Numeric)
-          return unless schema["max"].is_a?(Numeric)
           return unless instance.is_a?(Numeric)
 
           return if schema["min"] <= instance && schema["max"] >= instance
@@ -22,6 +18,8 @@ module Ucfg
         def exact_legacy_range?(schema)
           schema.key?("min") &&
             schema.key?("max") &&
+            schema["min"].is_a?(Numeric) &&
+            schema["max"].is_a?(Numeric) &&
             !schema.key?("minimum") &&
             !schema.key?("maximum") &&
             !schema.key?("exclusiveMinimum") &&

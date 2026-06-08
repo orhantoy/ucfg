@@ -9,8 +9,8 @@ RSpec.describe Ucfg do
 
   describe ".load_files" do
     it "merges two files from left to right" do
-      allow(described_class).to receive(:load_file).with("base.yml", erb: false).and_return({ "a" => 1 })
-      allow(described_class).to receive(:load_file).with("override.yml", erb: false).and_return({ "b" => 2 })
+      allow(described_class).to receive(:load_file).with("base.yml", erb: false, env: false).and_return({ "a" => 1 })
+      allow(described_class).to receive(:load_file).with("override.yml", erb: false, env: false).and_return({ "b" => 2 })
 
       merger = double("Ucfg::ConfigMerger")
       stub_const("Ucfg::ConfigMerger", merger)
@@ -24,9 +24,9 @@ RSpec.describe Ucfg do
     end
 
     it "applies three-file precedence with later files overriding earlier ones" do
-      allow(described_class).to receive(:load_file).with("one.yml", erb: false).and_return({ "timeout" => 10 })
-      allow(described_class).to receive(:load_file).with("two.yml", erb: false).and_return({ "timeout" => 20 })
-      allow(described_class).to receive(:load_file).with("three.yml", erb: false).and_return({ "timeout" => 30 })
+      allow(described_class).to receive(:load_file).with("one.yml", erb: false, env: false).and_return({ "timeout" => 10 })
+      allow(described_class).to receive(:load_file).with("two.yml", erb: false, env: false).and_return({ "timeout" => 20 })
+      allow(described_class).to receive(:load_file).with("three.yml", erb: false, env: false).and_return({ "timeout" => 30 })
 
       merger = double("Ucfg::ConfigMerger")
       stub_const("Ucfg::ConfigMerger", merger)
@@ -41,10 +41,10 @@ RSpec.describe Ucfg do
     end
 
     it "delegates nested hash cases to ConfigMerger and returns its result" do
-      allow(described_class).to receive(:load_file).with("base.yml", erb: false).and_return({
+      allow(described_class).to receive(:load_file).with("base.yml", erb: false, env: false).and_return({
                                                                                     "service" => { "host" => "localhost", "port" => 8080 }
                                                                                   })
-      allow(described_class).to receive(:load_file).with("override.yml", erb: false).and_return({
+      allow(described_class).to receive(:load_file).with("override.yml", erb: false, env: false).and_return({
                                                                                         "service" => { "port" => 9090 }
                                                                                       })
 
@@ -67,8 +67,8 @@ RSpec.describe Ucfg do
     end
 
     it "delegates array cases to ConfigMerger and returns its result" do
-      allow(described_class).to receive(:load_file).with("base.yml", erb: false).and_return({ "hosts" => ["a", "b"] })
-      allow(described_class).to receive(:load_file).with("override.yml", erb: false).and_return({ "hosts" => ["c"] })
+      allow(described_class).to receive(:load_file).with("base.yml", erb: false, env: false).and_return({ "hosts" => ["a", "b"] })
+      allow(described_class).to receive(:load_file).with("override.yml", erb: false, env: false).and_return({ "hosts" => ["c"] })
 
       merger = double("Ucfg::ConfigMerger")
       stub_const("Ucfg::ConfigMerger", merger)

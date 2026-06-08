@@ -8,10 +8,15 @@ module Ucfg
       class << self
         def validate(instance, schema, path:)
           return unless schema.key?("patternProperties")
-          return unless schema["patternProperties"].is_a?(Hash)
-          return unless instance.is_a?(Hash)
+
+          unless schema["patternProperties"].is_a?(Hash)
+            return JSONSchema.schema_error(path, "patternProperties", "must be an object")
+          end
 
           compiled_patterns, errors = JSONSchema.compile_pattern_properties(schema["patternProperties"], path: path + ["patternProperties"])
+          return errors unless errors.valid?
+
+          return unless instance.is_a?(Hash)
 
           result = instance.reduce(JSONSchema.empty_result) do |memo, (key, value)|
             key_result = compiled_patterns.reduce(JSONSchema.empty_result) do |key_memo, (regex, sub_schema)|

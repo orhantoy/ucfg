@@ -8,7 +8,11 @@ module Ucfg
       class << self
         def validate(instance, schema, path:)
           return unless schema.key?("enum")
-          return unless schema["enum"].is_a?(Array)
+
+          unless schema["enum"].is_a?(Array)
+            return JSONSchema.schema_error(path, "enum", "must be an array")
+          end
+
           return if schema["enum"].include?(instance)
 
           JSONSchema.result_with_validation_error("Property `#{path.join('.')}` contains an unsupported value (provided `#{instance}`)")

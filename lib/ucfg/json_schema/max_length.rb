@@ -8,8 +8,12 @@ module Ucfg
       class << self
         def validate(instance, schema, path:)
           return unless schema.key?("maxLength")
+
+          unless schema["maxLength"].is_a?(Integer) && schema["maxLength"] >= 0
+            return JSONSchema.schema_error(path, "maxLength", "must be a non-negative integer")
+          end
+
           return unless instance.is_a?(String)
-          return unless schema["maxLength"].is_a?(Integer) && schema["maxLength"] >= 0
 
           return if instance.length <= schema["maxLength"]
 

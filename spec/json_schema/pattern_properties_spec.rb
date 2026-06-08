@@ -148,7 +148,7 @@ RSpec.describe "patternProperties" do
     expect(result.errors).to eq(["Pattern `patternProperties.[` is not a valid regular expression"])
   end
 
-  it "does not crash additionalProperties matching when pattern regex is invalid" do
+  it "reports invalid patternProperties regex without classifying additional properties" do
     config = <<-JSON
     {
       "other": "nope"
@@ -171,7 +171,6 @@ RSpec.describe "patternProperties" do
     expect(result.valid?).to eq(false)
     expect(result.errors).to eq(
       [
-        "Property `other` is not supported",
         "Pattern `patternProperties.[` is not a valid regular expression",
       ],
     )

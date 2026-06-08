@@ -9,8 +9,12 @@ module Ucfg
         def validate(instance, schema, path:)
           return unless schema.key?("type")
 
-          return if schema["type"].is_a?(String) && schema["type"] == value_type(instance)
-          return if schema["type"].is_a?(Array) && schema["type"].include?(value_type(instance))
+          type = schema["type"]
+          unless valid_type_definition?(type)
+            return JSONSchema.schema_error(path, "type", "must be a supported JSON Schema type or an array of supported types")
+          end
+
+          return if Array(type).any? { |expected_type| matches_type?(instance, expected_type) }
 
           JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must be of type #{type_to_sentence(schema['type'])} (#{value_type_error(instance)})")
         end
@@ -20,6 +24,31 @@ module Ucfg
             "`#{type}`"
           elsif type.is_a?(Array)
             type.map { |t| "`#{t}`" }.join(" or ")
+          end
+        end
+
+        def valid_type_definition?(type)
+          if type.is_a?(String)
+            valid_type?(type)
+          elsif type.is_a?(Array)
+            !type.empty? && type.all? { |item| item.is_a?(String) && valid_type?(item) }
+          else
+            false
+          end
+        end
+
+        def valid_type?(type)
+          %w[string boolean number integer null array object].include?(type)
+        end
+
+        def matches_type?(value, type)
+          case type
+          when "number"
+            value.is_a?(Numeric)
+          when "integer"
+            value.is_a?(Integer)
+          else
+            value_type(value) == type
           end
         end
 
@@ -39,6 +68,8 @@ module Ucfg
             "boolean"
           when nil
             "null"
+          when Integer
+            "integer"
           when Numeric
             "number"
           when Array
