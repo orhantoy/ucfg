@@ -110,4 +110,20 @@ RSpec.describe "String and array validation" do
       "Property `service.aliases.1` must have at least 3 characters (provided length 1)",
     ])
   end
+
+  it "fails gracefully for invalid pattern definitions in schema" do
+    schema = <<-JSON
+    {
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "["
+        }
+      }
+    }
+    JSON
+    schema_as_hash = JSON.parse(schema)
+
+    expect(Ucfg.validate({ "name" => "abc" }, schema_as_hash).errors).to match([a_string_starting_with("Property `name` has invalid pattern `[` in schema (")])
+  end
 end
