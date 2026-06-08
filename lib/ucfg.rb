@@ -6,6 +6,7 @@ require "ucfg/validation_result"
 require "ucfg/file_loader"
 require "ucfg/template_renderer"
 require "ucfg/yaml_loader"
+require "ucfg/config_merger"
 
 module Ucfg
   class Error < StandardError; end
