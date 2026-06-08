@@ -5,16 +5,41 @@ require "ucfg/json_schema"
 module Ucfg
   module JSONSchema
     class Max
+      MAX_KEYWORDS = [
+        ["max", :>=, "less than or equal to"],
+        ["maximum", :>=, "less than or equal to"],
+        ["exclusiveMaximum", :>, "less than"],
+      ].freeze
+
       class << self
         def validate(instance, schema, path:)
-          return if schema.key?("min")
-          return unless schema.key?("max")
           return unless instance.is_a?(Numeric)
-          return unless schema["max"].is_a?(Numeric)
+          return if handled_by_min_max?(schema)
 
-          return if schema["max"] >= instance
+          errors = MAX_KEYWORDS.each_with_object([]) do |(keyword, operator, text), memo|
+            next unless schema.key?(keyword)
+            next unless schema[keyword].is_a?(Numeric)
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must be less than or equal to #{schema['max']} (provided #{instance})")
+            valid = schema[keyword].public_send(operator, instance)
+            next if valid
+
+            memo << "Property `#{path.join('.')}` must be #{text} #{schema[keyword]} (provided #{instance})"
+          end
+
+          return if errors.empty?
+
+          { validation_errors: errors }
+        end
+
+        private
+
+        def handled_by_min_max?(schema)
+          schema.key?("min") &&
+            schema.key?("max") &&
+            !schema.key?("minimum") &&
+            !schema.key?("maximum") &&
+            !schema.key?("exclusiveMinimum") &&
+            !schema.key?("exclusiveMaximum")
         end
       end
     end
