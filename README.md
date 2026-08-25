@@ -138,6 +138,8 @@ Semantics:
 - arrays and scalar values are replaced
 - `${NAME}` reads from the environment
 - `${NAME:default}` uses a default when the environment variable is missing
+- `env_parsers: { "NAME" => :csv }` parses a whole environment value as a
+  comma-separated list
 - schema errors are reported before the loaded config is returned
 
 ## Loading API
@@ -181,6 +183,9 @@ end
 
 Raw YAML schema strings are not accepted as `schema:` values. Use
 `Ucfg.load_yaml` first if you already have the schema source in memory.
+
+`env_parsers:` can be used with `Ucfg.load`, `Ucfg.load_result`,
+`Ucfg.load_file`, and `Ucfg.load_yaml`.
 
 ## Lower-Level APIs
 
@@ -233,7 +238,7 @@ Environment expansion is opt-in:
 host: ${HOST:localhost}
 port: ${PORT:3000}
 debug: ${DEBUG:false}
-tags: ${TAGS:api,billing}
+hosts: ${HOSTS:localhost}
 ```
 
 When a whole YAML value is an environment expression, `ucfg` preserves useful
@@ -242,14 +247,28 @@ types:
 ```ruby
 ENV["PORT"] = "3000"
 ENV["DEBUG"] = "false"
-ENV["TAGS"] = "api,billing"
+ENV["HOSTS"] = "api-1,api-2"
 
-Ucfg.load_yaml("port: ${PORT}\ndebug: ${DEBUG}\ntags: ${TAGS}\n", env: true)
+Ucfg.load_yaml("port: ${PORT}\ndebug: ${DEBUG}\nhosts: ${HOSTS}\n", env: true)
 # => {
 #      "port" => 3000,
 #      "debug" => false,
-#      "tags" => ["api", "billing"],
+#      "hosts" => "api-1,api-2",
 #    }
+```
+
+Comma-separated values are strings by default. Use `env_parsers` when a specific
+environment variable should be parsed as a list:
+
+```ruby
+ENV["HOSTS"] = "api-1,api-2"
+
+Ucfg.load_yaml(
+  "hosts: ${HOSTS}\n",
+  env: true,
+  env_parsers: { "HOSTS" => :csv },
+)
+# => { "hosts" => ["api-1", "api-2"] }
 ```
 
 Embedded environment expressions are rendered as strings:

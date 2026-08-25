@@ -91,7 +91,7 @@ RSpec.describe Ucfg do
 
       with_env("SERVICE_ENABLED", "true") do
         with_env("SERVICE_ENV", "prod") do
-          result = described_class.validate_yaml(yaml, schema, env: true)
+          result = described_class.validate_yaml(yaml, schema, env: true, env_parsers: { "SERVICE_HOSTS" => :csv })
 
           expect(result).to be_valid
         end

@@ -189,7 +189,7 @@ RSpec.describe Ucfg::YAMLLoader do
       YAML
 
       with_env("SERVICE_ENV", "prod") do
-        expect(described_class.load(yaml, env: true)).to eq(
+        expect(described_class.load(yaml, env: true, env_parsers: { "SERVICE_HOSTS" => :csv })).to eq(
           "service" => {
             "enabled" => true,
             "hosts" => ["host1:9200", "host2:9200"],

@@ -30,7 +30,7 @@ RSpec.describe Ucfg::EnvExpander do
         end
 
         with_env("HOSTS", "h1,h2") do
-          expect(described_class.expand("${A:${HOSTS}}")).to eq(["h1", "h2"])
+          expect(described_class.expand("${A:${HOSTS}}", parsers: { "A" => :csv })).to eq(["h1", "h2"])
         end
       end
     end
@@ -47,9 +47,36 @@ RSpec.describe Ucfg::EnvExpander do
       expect(described_class.expand("${MISSING:null}")).to be_nil
     end
 
-    it "parses comma-separated whole-value expansions into arrays" do
+    it "leaves comma-separated whole-value expansions as strings by default" do
       with_env("HOSTS", "host1:9200,host2:9200") do
-        expect(described_class.expand("${HOSTS}")).to eq(["host1:9200", "host2:9200"])
+        expect(described_class.expand("${HOSTS}")).to eq("host1:9200,host2:9200")
+      end
+    end
+
+    it "parses whole-value expansions with explicit csv parsers into arrays" do
+      with_env("HOSTS", "host1:9200,host2:9200") do
+        expect(described_class.expand("${HOSTS}", parsers: { "HOSTS" => :csv })).to eq(["host1:9200", "host2:9200"])
+      end
+    end
+
+    it "parses csv parser items into scalar values" do
+      with_env("VALUES", "true,3,null,text") do
+        expect(described_class.expand("${VALUES}", parsers: { "VALUES" => :csv })).to eq([true, 3, nil, "text"])
+      end
+    end
+
+    it "supports callable environment parsers" do
+      with_env("HOSTS", "h1|h2") do
+        parser = ->(value) { value.split("|") }
+
+        expect(described_class.expand("${HOSTS}", parsers: { "HOSTS" => parser })).to eq(["h1", "h2"])
+      end
+    end
+
+    it "raises for unsupported environment parsers" do
+      with_env("HOSTS", "h1,h2") do
+        expect { described_class.expand("${HOSTS}", parsers: { "HOSTS" => :unknown }) }
+          .to raise_error(Ucfg::Error, /unsupported environment parser/i)
       end
     end
 

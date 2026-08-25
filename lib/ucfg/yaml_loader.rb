@@ -6,7 +6,7 @@ require "ucfg/env_expander"
 module Ucfg
   module YAMLLoader
     class << self
-      def load(source, env: false)
+      def load(source, env: false, env_parsers: {})
         yaml = normalize_source(source)
 
         stream = Psych.parse_stream(yaml)
@@ -17,7 +17,7 @@ module Ucfg
         raise Error, "YAML document must contain a single root value" unless document&.children&.length == 1
 
         config = convert_node(document.children.first, path: [])
-        env ? EnvExpander.expand(config) : config
+        env ? EnvExpander.expand(config, parsers: env_parsers) : config
       rescue Psych::SyntaxError => e
         raise Error, "Invalid YAML syntax at line #{e.line}, column #{e.column}: #{e.problem}"
       end

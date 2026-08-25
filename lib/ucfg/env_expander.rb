@@ -3,21 +3,21 @@
 module Ucfg
   module EnvExpander
     class << self
-      def expand(value, env: ENV)
+      def expand(value, env: ENV, parsers: {})
         case value
         when Hash
-          value.transform_values { |child| expand(child, env: env) }
+          value.transform_values { |child| expand(child, env: env, parsers: parsers) }
         when Array
-          value.map { |child| expand(child, env: env) }
+          value.map { |child| expand(child, env: env, parsers: parsers) }
         when String
-          expand_string(value, env: env)
+          expand_string(value, env: env, parsers: parsers)
         else
           value
         end
       end
 
       def expand_source(source, env: ENV)
-        expand_string(normalize_source(source), env: env).to_s
+        expand_string(normalize_source(source), env: env, parsers: {}).to_s
       end
 
       private
@@ -28,18 +28,18 @@ module Ucfg
         raise Error, "Template source must be a string"
       end
 
-      def expand_string(value, env:, parse_whole: true)
-        pieces = parse_pieces(value, env: env)
+      def expand_string(value, env:, parsers:, parse_whole: true)
+        pieces = parse_pieces(value, env: env, parsers: parsers)
         return value if pieces.nil?
 
         if parse_whole && pieces.length == 1 && pieces.first[:type] == :expansion
-          return parse_env_value(pieces.first[:value])
+          return parse_env_value(pieces.first[:value], parser: parser_for(pieces.first[:name], parsers))
         end
 
         pieces.map { |piece| piece[:value] }.join
       end
 
-      def parse_pieces(value, env:)
+      def parse_pieces(value, env:, parsers:)
         pieces = []
         index = 0
         saw_expansion = false
@@ -66,7 +66,8 @@ module Ucfg
             raise Error, "Missing `}` in environment expansion" unless close_index
 
             expression = value[(dollar_index + 2)...close_index]
-            pieces << { :type => :expansion, :value => resolve_expression(expression, env: env) }
+            resolved = resolve_expression(expression, env: env, parsers: parsers)
+            pieces << { :type => :expansion, :name => resolved[:name], :value => resolved[:value] }
             saw_expansion = true
             index = close_index + 1
           else
@@ -90,13 +91,13 @@ module Ucfg
         end
       end
 
-      def resolve_expression(expression, env:)
+      def resolve_expression(expression, env:, parsers:)
         name, default = expression.split(":", 2)
         raise Error, "Empty environment expansion" if name.nil? || name.empty?
 
         value = env[name]
-        return value if value && !value.empty?
-        return expand_string(default, env: env, parse_whole: false) unless default.nil?
+        return { :name => name, :value => value } if value && !value.empty?
+        return { :name => name, :value => expand_string(default, env: env, parsers: parsers, parse_whole: false) } unless default.nil?
 
         raise Error, "Environment variable `#{name}` is not set"
       end
@@ -122,10 +123,21 @@ module Ucfg
         nil
       end
 
-      def parse_env_value(value)
+      def parse_env_value(value, parser:)
         return value unless value.is_a?(String)
-        return value.split(",", -1).map { |item| parse_env_value(item.strip) } if value.include?(",")
+        return apply_parser(value, parser) if parser
 
+        parse_env_scalar(value)
+      end
+
+      def apply_parser(value, parser)
+        return value.split(",", -1).map { |item| parse_env_scalar(item.strip) } if [:csv, "csv"].include?(parser)
+        return parser.call(value) if parser.respond_to?(:call)
+
+        raise Error, "Unsupported environment parser `#{parser}`"
+      end
+
+      def parse_env_scalar(value)
         case value
         when "true"
           true
@@ -136,6 +148,10 @@ module Ucfg
         else
           parse_number(value) || value
         end
+      end
+
+      def parser_for(name, parsers)
+        parsers[name] || parsers[name.to_sym]
       end
 
       def parse_number(value)

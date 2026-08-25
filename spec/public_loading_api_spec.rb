@@ -179,6 +179,21 @@ RSpec.describe Ucfg do
       end
     end
 
+    it "passes environment parsers through to every loaded file" do
+      with_env("PUBLIC_LOADING_API_HOSTS", "one.example,two.example") do
+        Dir.mktmpdir do |dir|
+          path = File.join(dir, "config.yml")
+          File.write(path, "service.hosts: ${PUBLIC_LOADING_API_HOSTS}\n")
+
+          expect(described_class.load(path, env: true, env_parsers: { "PUBLIC_LOADING_API_HOSTS" => :csv })).to eq(
+            "service" => {
+              "hosts" => ["one.example", "two.example"],
+            },
+          )
+        end
+      end
+    end
+
     it "passes ERB rendering through to every loaded file" do
       with_env("PUBLIC_LOADING_API_ERB_PORT", "443") do
         Dir.mktmpdir do |dir|
