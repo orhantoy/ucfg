@@ -3,6 +3,7 @@
 require "ucfg/version"
 require "ucfg/json_schema"
 require "ucfg/validation_result"
+require "ucfg/load_result"
 require "ucfg/file_loader"
 require "ucfg/env_expander"
 require "ucfg/template_renderer"
@@ -18,6 +19,29 @@ module Ucfg
 
     rendered_source = TemplateRenderer.render(source, erb: erb)
     YAMLLoader.load(rendered_source)
+  end
+
+  def self.load(*paths, schema: nil, erb: false, env: false)
+    result = load_result(*paths, schema: schema, erb: erb, env: env)
+    return result.config if result.valid?
+
+    raise Error, "Configuration load failed:\n- #{result.errors.join("\n- ")}"
+  end
+
+  class << self
+    alias load! load
+  end
+
+  def self.load_result(*paths, schema: nil, erb: false, env: false)
+    config = nil
+    config = load_files(*paths, erb: erb, env: env)
+    validation_schema = load_schema(schema)
+    return LoadResult.new(config: config) if validation_schema.nil?
+
+    validation = validate(config, validation_schema)
+    LoadResult.new(config: config, errors: validation.errors)
+  rescue Error => e
+    LoadResult.new(config: config, errors: [e.message])
   end
 
   def self.load_file(path, erb: false, env: false)
@@ -47,4 +71,12 @@ module Ucfg
     result = JSONSchema.validate_recursively(config, schema, path: [])
     ValidationResult.from_json_schema_validation(result)
   end
+
+  def self.load_schema(schema)
+    return nil if schema.nil?
+    return schema if schema.is_a?(Hash)
+
+    load_file(schema)
+  end
+  private_class_method :load_schema
 end
