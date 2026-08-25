@@ -16,7 +16,11 @@ module Ucfg
 
           return if Array(type).any? { |expected_type| matches_type?(instance, expected_type) }
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must be of type #{type_to_sentence(schema['type'])} (#{value_type_error(instance)})")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` must be of type #{type_to_sentence(schema['type'])} (#{value_type_error(instance)})",
+            path: path,
+            keyword: "type",
+          )
         end
 
         def type_to_sentence(type)

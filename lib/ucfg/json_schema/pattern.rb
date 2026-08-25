@@ -17,9 +17,18 @@ module Ucfg
           return unless instance.is_a?(String)
           return if instance.match?(regexp)
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must match pattern `#{schema['pattern']}` (provided `#{instance}`)")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` must match pattern `#{schema['pattern']}` (provided `#{instance}`)",
+            path: path,
+            keyword: "pattern",
+          )
         rescue RegexpError => e
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` has invalid pattern `#{schema['pattern']}` in schema (#{e.message})")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` has invalid pattern `#{schema['pattern']}` in schema (#{e.message})",
+            path: path,
+            keyword: "pattern",
+            type: :schema,
+          )
         end
       end
     end

@@ -27,7 +27,11 @@ module Ucfg
               next memo if explicit_properties.key?(key)
               next memo if key_matches_pattern.call(key)
 
-              result = JSONSchema.result_with_validation_error("Property `#{(path + [key]).join('.')}` is not supported")
+              result = JSONSchema.result_with_validation_error(
+                "Property `#{(path + [key]).join('.')}` is not supported",
+                path: path + [key],
+                keyword: "additionalProperties",
+              )
               JSONSchema.combine_results(memo, result)
             end
           elsif schema["additionalProperties"].is_a?(Hash)

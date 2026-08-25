@@ -17,7 +17,11 @@ module Ucfg
           return unless instance.is_a?(Array)
           return if instance.length == instance.uniq.length
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must contain unique items")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` must contain unique items",
+            path: path,
+            keyword: "uniqueItems",
+          )
         end
       end
     end
