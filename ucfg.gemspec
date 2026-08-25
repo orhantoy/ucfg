@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = %q{Configuration file validation with JSON Schema}
   spec.homepage      = "https://github.com/orhantoy/ucfg"
   spec.required_ruby_version = ">= 3.1"
+  spec.license       = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/orhantoy/ucfg"
