@@ -2,6 +2,7 @@
 
 require "ucfg/version"
 require "ucfg/json_schema"
+require "ucfg/validation_error"
 require "ucfg/validation_result"
 require "ucfg/load_result"
 require "ucfg/file_loader"
@@ -39,7 +40,7 @@ module Ucfg
     return LoadResult.new(config: config) if validation_schema.nil?
 
     validation = validate(config, validation_schema)
-    LoadResult.new(config: config, errors: validation.errors)
+    LoadResult.new(config: config, error_details: validation.error_details)
   rescue Error => e
     LoadResult.new(config: config, errors: [e.message])
   end

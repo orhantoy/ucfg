@@ -175,6 +175,22 @@ else
 end
 ```
 
+`result.errors` returns human-readable strings. `result.error_details` returns
+structured error objects:
+
+```ruby
+result.error_details.first.to_h
+# => {
+#      :message => "Property `service.port` must be of type `integer` ...",
+#      :path => ["service", "port"],
+#      :keyword => "type",
+#      :type => :validation,
+#    }
+```
+
+Error `type` is `:validation` for config validation errors, `:schema` for
+invalid schema shapes, and `:load` for file loading or parsing errors.
+
 `schema:` accepts:
 
 - `nil` for no validation

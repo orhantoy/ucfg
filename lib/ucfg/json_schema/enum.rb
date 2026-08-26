@@ -15,7 +15,11 @@ module Ucfg
 
           return if schema["enum"].include?(instance)
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` contains an unsupported value (provided `#{instance}`)")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` contains an unsupported value (provided `#{instance}`)",
+            path: path,
+            keyword: "enum",
+          )
         end
       end
     end

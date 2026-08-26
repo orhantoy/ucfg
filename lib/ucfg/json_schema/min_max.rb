@@ -12,7 +12,11 @@ module Ucfg
 
           return if schema["min"] <= instance && schema["max"] >= instance
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must be between #{schema['min']} and #{schema['max']} (provided #{instance})")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` must be between #{schema['min']} and #{schema['max']} (provided #{instance})",
+            path: path,
+            keyword: "min/max",
+          )
         end
 
         def exact_legacy_range?(schema)

@@ -21,7 +21,13 @@ module Ucfg
           return unless instance.is_a?(Hash)
 
           schema["required"].reduce(JSONSchema.empty_result) do |memo, required_key|
-            result = JSONSchema.result_with_validation_error("Required property `#{(path + [required_key]).join('.')}` is missing") unless instance.key?(required_key)
+            unless instance.key?(required_key)
+              result = JSONSchema.result_with_validation_error(
+                "Required property `#{(path + [required_key]).join('.')}` is missing",
+                path: path + [required_key],
+                keyword: "required",
+              )
+            end
             JSONSchema.combine_results(memo, result)
           end
         end

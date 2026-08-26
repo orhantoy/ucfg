@@ -25,12 +25,16 @@ module Ucfg
             valid = schema[keyword].public_send(operator, instance)
             next if valid
 
-            memo << "Property `#{path.join('.')}` must be #{text} #{schema[keyword]} (provided #{instance})"
+            memo << ValidationError.new(
+              message: "Property `#{path.join('.')}` must be #{text} #{schema[keyword]} (provided #{instance})",
+              path: path,
+              keyword: keyword,
+            )
           end
 
           return if errors.empty?
 
-          ValidationResult.new(validation_errors: errors)
+          ValidationResult.new(error_details: errors)
         end
 
         private

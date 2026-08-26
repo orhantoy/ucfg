@@ -15,6 +15,22 @@ RSpec.describe "JSON Schema shape validation" do
         "Schema keyword `properties` must be an object",
       ],
     )
+    expect(result.error_details.map(&:to_h)).to eq(
+      [
+        {
+          :message => "Schema keyword `required` must be an array of property names",
+          :path => [],
+          :keyword => "required",
+          :type => :schema,
+        },
+        {
+          :message => "Schema keyword `properties` must be an object",
+          :path => [],
+          :keyword => "properties",
+          :type => :schema,
+        },
+      ],
+    )
   end
 
   it "reports malformed property subschemas even when the property is absent" do

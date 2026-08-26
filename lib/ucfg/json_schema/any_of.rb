@@ -18,7 +18,11 @@ module Ucfg
 
           return if matching_subschema_count(instance, schema["anyOf"], path: path) > 0
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must match at least one schema in `anyOf`")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` must match at least one schema in `anyOf`",
+            path: path,
+            keyword: "anyOf",
+          )
         end
 
         private

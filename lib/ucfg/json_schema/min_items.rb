@@ -17,7 +17,11 @@ module Ucfg
 
           return if instance.length >= schema["minItems"]
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must contain at least #{schema['minItems']} items (provided #{instance.length})")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` must contain at least #{schema['minItems']} items (provided #{instance.length})",
+            path: path,
+            keyword: "minItems",
+          )
         end
       end
     end

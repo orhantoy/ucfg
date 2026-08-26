@@ -268,6 +268,14 @@ RSpec.describe Ucfg do
         expect(result.errors).to eq([
                                       "Property `service.enabled` must be of type `boolean` (provided value `nope` of type `string`)",
                                     ])
+        expect(result.error_details.map(&:to_h)).to eq([
+                                                         {
+                                                           :message => "Property `service.enabled` must be of type `boolean` (provided value `nope` of type `string`)",
+                                                           :path => ["service", "enabled"],
+                                                           :keyword => "type",
+                                                           :type => :validation,
+                                                         },
+                                                       ])
       end
     end
 
@@ -277,6 +285,9 @@ RSpec.describe Ucfg do
       expect(result).not_to be_valid
       expect(result.config).to be_nil
       expect(result.errors.first).to match(/Failed to read file/)
+      expect(result.error_details.first.type).to eq(:load)
+      expect(result.error_details.first.path).to be_nil
+      expect(result.error_details.first.keyword).to be_nil
     end
 
     it "keeps the loaded config when schema loading fails" do

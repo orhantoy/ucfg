@@ -17,7 +17,11 @@ module Ucfg
 
           return if instance.length <= schema["maxItems"]
 
-          JSONSchema.result_with_validation_error("Property `#{path.join('.')}` must contain at most #{schema['maxItems']} items (provided #{instance.length})")
+          JSONSchema.result_with_validation_error(
+            "Property `#{path.join('.')}` must contain at most #{schema['maxItems']} items (provided #{instance.length})",
+            path: path,
+            keyword: "maxItems",
+          )
         end
       end
     end
