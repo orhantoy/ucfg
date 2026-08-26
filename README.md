@@ -32,6 +32,8 @@ Invalid config fails before `App.start`, with errors tied to config properties.
 
 ## Installation
 
+`ucfg` requires Ruby 3.1 or newer.
+
 Add `ucfg` to your Gemfile:
 
 ```ruby
@@ -137,7 +139,7 @@ Semantics:
 - nested objects are merged
 - arrays and scalar values are replaced
 - `${NAME}` reads from the environment
-- `${NAME:default}` uses a default when the environment variable is missing
+- `${NAME:default}` uses a default when the environment variable is missing or empty
 - `env_parsers: { "NAME" => :csv }` parses a whole environment value as a
   comma-separated list
 - schema errors are reported before the loaded config is returned
@@ -377,13 +379,11 @@ service:
 
 ## Roadmap
 
-The next useful changes are about getting the project ready for a stable v1:
+Before a stable v1, add a small CLI for checking config in CI, for example:
 
-- return structured errors with both human-readable messages and machine-readable
-  paths
-- add a small CLI for checking config in CI, for example
-  `ucfg check config/app.yml --schema config/schema.yml`
-- run CI against every Ruby version promised by the gemspec
+```sh
+ucfg check config/app.yml --schema config/schema.yml
+```
 
 ## Development
 
