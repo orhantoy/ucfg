@@ -393,6 +393,9 @@ service:
   port: 3000
 ```
 
+Every segment of a dotted key must be non-empty, so `.name`, `service..name`,
+and `service.` are all rejected.
+
 ## Roadmap
 
 Before a stable v1, add a small CLI for checking config in CI, for example:

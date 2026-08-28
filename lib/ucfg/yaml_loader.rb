@@ -92,8 +92,7 @@ module Ucfg
       end
 
       def insert_mapping_value!(result, raw_key, value_node, path:)
-        segments = raw_key.split(".")
-        raise Error, "Invalid dotted key `#{raw_key}`" if segments.any?(&:empty?)
+        segments = split_key(raw_key)
 
         current = result
 
@@ -127,6 +126,13 @@ module Ucfg
         end
 
         current[leaf] = value
+      end
+
+      def split_key(raw_key)
+        segments = raw_key.split(".", -1)
+        raise Error, "Invalid dotted key `#{raw_key}`" if segments.empty? || segments.any?(&:empty?)
+
+        segments
       end
 
       def merge_mapping_values!(target, incoming, path:)

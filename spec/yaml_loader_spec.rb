@@ -240,6 +240,25 @@ RSpec.describe Ucfg::YAMLLoader do
       expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /scalar.*object|object.*scalar/i)
     end
 
+    it "raises for dotted keys with empty segments" do
+      cases = {
+        "a.: 1\n" => "a.",
+        "a..: 1\n" => "a..",
+        ".a: 1\n" => ".a",
+        "a..b: 1\n" => "a..b",
+        "..a: 1\n" => "..a",
+        "\".\": 1\n" => ".",
+        "\"\": 1\n" => "",
+      }
+
+      aggregate_failures do
+        cases.each do |yaml, key|
+          expect { described_class.load(yaml) }
+            .to raise_error(Ucfg::Error, "Invalid dotted key `#{key}`"), "expected #{yaml.inspect} to be rejected"
+        end
+      end
+    end
+
     it "raises for unsupported flow style collections" do
       yaml = <<~YAML
         items: [one, two]
