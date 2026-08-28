@@ -43,22 +43,4 @@ RSpec.describe Ucfg do
       end
     end
   end
-
-  def with_env(key, value)
-    original = ENV.fetch(key, nil)
-
-    if value.nil?
-      ENV.delete(key)
-    else
-      ENV[key] = value
-    end
-
-    yield
-  ensure
-    if original.nil?
-      ENV.delete(key)
-    else
-      ENV[key] = original
-    end
-  end
 end

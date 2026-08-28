@@ -59,22 +59,4 @@ RSpec.describe Ucfg::TemplateRenderer do
         .to raise_error(Ucfg::Error, /template source must be a string/i)
     end
   end
-
-  def with_env(key, value)
-    original = ENV.fetch(key, nil)
-
-    if value.nil?
-      ENV.delete(key)
-    else
-      ENV[key] = value
-    end
-
-    yield
-  ensure
-    if original.nil?
-      ENV.delete(key)
-    else
-      ENV[key] = original
-    end
-  end
 end

@@ -366,22 +366,4 @@ RSpec.describe Ucfg::YAMLLoader do
       expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /multi-document/i)
     end
   end
-
-  def with_env(key, value)
-    original = ENV.fetch(key, nil)
-
-    if value.nil?
-      ENV.delete(key)
-    else
-      ENV[key] = value
-    end
-
-    yield
-  ensure
-    if original.nil?
-      ENV.delete(key)
-    else
-      ENV[key] = original
-    end
-  end
 end
