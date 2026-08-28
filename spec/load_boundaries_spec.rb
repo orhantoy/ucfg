@@ -42,7 +42,7 @@ RSpec.describe "library load boundaries" do
   end
 
   it "loads recursive validators independently" do
-    source = <<~'RUBY'
+    source = <<~RUBY
       require "ucfg/json_schema/properties"
       schema = { "properties" => { "name" => { "type" => "string" } } }
       context = Ucfg::JSONSchema::ValidationContext.new

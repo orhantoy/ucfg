@@ -32,10 +32,10 @@ RSpec.describe "Type validation" do
     expect(result.errors).to eq(["Property `name` must be of type `string` (provided value `true` of type `boolean`)"])
     expect(result.error_details.map(&:to_h)).to eq([
                                                      {
-                                                       :message => "Property `name` must be of type `string` (provided value `true` of type `boolean`)",
-                                                       :path => ["name"],
-                                                       :keyword => "type",
-                                                       :type => :validation,
+                                                       message: "Property `name` must be of type `string` (provided value `true` of type `boolean`)",
+                                                       path: ["name"],
+                                                       keyword: "type",
+                                                       type: :validation,
                                                      },
                                                    ])
   end

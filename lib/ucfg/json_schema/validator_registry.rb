@@ -26,9 +26,7 @@ module Ucfg
           !validator.handles.empty? &&
           validator.method(:validate).owner != Validator.singleton_class
 
-        unless valid_strategy
-          raise ArgumentError, "validators must define .validate and handle at least one keyword"
-        end
+        raise ArgumentError, "validators must define .validate and handle at least one keyword" unless valid_strategy
 
         validator
       end

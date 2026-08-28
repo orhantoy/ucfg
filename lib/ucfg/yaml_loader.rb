@@ -51,7 +51,7 @@ module Ucfg
         children = node.children
         raise_error_at(node, "Invalid mapping") if children.length.odd?
 
-        children.each_slice(2).each_with_object({}) do |(key_node, value_node), result|
+        children.each_slice(2).with_object({}) do |(key_node, value_node), result|
           key = convert_key(key_node)
           insert_mapping_value!(result, key, value_node, path: path)
         end
@@ -66,16 +66,12 @@ module Ucfg
       end
 
       def convert_key(node)
-        unless node.is_a?(Psych::Nodes::Scalar)
-          raise_error_at(node, "Only string object keys are supported")
-        end
+        raise_error_at(node, "Only string object keys are supported") unless node.is_a?(Psych::Nodes::Scalar)
 
         reject_anchor!(node)
         reject_tag!(node)
 
-        if [Psych::Nodes::Scalar::LITERAL, Psych::Nodes::Scalar::FOLDED].include?(node.style)
-          raise_error_at(node, "Block scalars are not supported")
-        end
+        raise_error_at(node, "Block scalars are not supported") if [Psych::Nodes::Scalar::LITERAL, Psych::Nodes::Scalar::FOLDED].include?(node.style)
 
         raise_error_at(node, "Merge keys are not supported") if node.value == "<<"
 
@@ -83,9 +79,7 @@ module Ucfg
       end
 
       def convert_scalar(node)
-        if [Psych::Nodes::Scalar::LITERAL, Psych::Nodes::Scalar::FOLDED].include?(node.style)
-          raise_error_at(node, "Block scalars are not supported")
-        end
+        raise_error_at(node, "Block scalars are not supported") if [Psych::Nodes::Scalar::LITERAL, Psych::Nodes::Scalar::FOLDED].include?(node.style)
 
         return node.value if quoted_scalar?(node)
         return nil if node.value == ""
@@ -122,9 +116,7 @@ module Ucfg
         if current.key?(leaf)
           existing = current[leaf]
 
-          if existing.is_a?(Hash) != value.is_a?(Hash)
-            raise Error, "Key `#{full_path}` cannot be both a scalar and an object"
-          end
+          raise Error, "Key `#{full_path}` cannot be both a scalar and an object" if existing.is_a?(Hash) != value.is_a?(Hash)
 
           if existing.is_a?(Hash)
             merge_mapping_values!(existing, value, path: path + segments)
@@ -153,9 +145,7 @@ module Ucfg
             next
           end
 
-          if target_value.is_a?(Hash) != incoming_value.is_a?(Hash)
-            raise Error, "Key `#{full_path}` cannot be both a scalar and an object"
-          end
+          raise Error, "Key `#{full_path}` cannot be both a scalar and an object" if target_value.is_a?(Hash) != incoming_value.is_a?(Hash)
 
           raise Error, "Duplicate key `#{full_path}`"
         end
@@ -177,9 +167,7 @@ module Ucfg
         line = node.respond_to?(:start_line) ? node.start_line + 1 : nil
         column = node.respond_to?(:start_column) ? node.start_column + 1 : nil
 
-        if line && column
-          raise Error, "#{message} at line #{line}, column #{column}"
-        end
+        raise Error, "#{message} at line #{line}, column #{column}" if line && column
 
         raise Error, message
       end

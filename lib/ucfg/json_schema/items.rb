@@ -11,9 +11,7 @@ module Ucfg
         def validate(instance, schema, path:, context:)
           return context unless schema.key?("items")
 
-          unless schema["items"].is_a?(Hash)
-            return context.add_schema_error(path, "items", "must be an object")
-          end
+          return context.add_schema_error(path, "items", "must be an object") unless schema["items"].is_a?(Hash)
 
           return context unless instance.is_a?(Array)
 

@@ -11,9 +11,7 @@ module Ucfg
         def validate(instance, schema, path:, context:)
           return context unless schema.key?("patternProperties")
 
-          unless schema["patternProperties"].is_a?(Hash)
-            return context.add_schema_error(path, "patternProperties", "must be an object")
-          end
+          return context.add_schema_error(path, "patternProperties", "must be an object") unless schema["patternProperties"].is_a?(Hash)
 
           initial_error_count = context.error_count
           compiled_patterns = JSONSchema.compile_pattern_properties(

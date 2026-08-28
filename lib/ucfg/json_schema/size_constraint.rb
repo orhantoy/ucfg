@@ -20,9 +20,7 @@ module Ucfg
           return context unless schema.key?(@keyword)
 
           limit = schema[@keyword]
-          unless limit.is_a?(Integer) && limit >= 0
-            return context.add_schema_error(path, @keyword, "must be a non-negative integer")
-          end
+          return context.add_schema_error(path, @keyword, "must be a non-negative integer") unless limit.is_a?(Integer) && limit >= 0
 
           return context unless instance.is_a?(@type)
           return context if instance.length.public_send(@operator, limit)

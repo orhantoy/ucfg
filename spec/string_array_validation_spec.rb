@@ -57,10 +57,10 @@ RSpec.describe "String and array validation" do
     JSON
     schema_as_hash = JSON.parse(schema)
 
-    expect(Ucfg.validate({ "tags" => ["a", "b"] }, schema_as_hash)).to be_valid
+    expect(Ucfg.validate({ "tags" => %w[a b] }, schema_as_hash)).to be_valid
     expect(Ucfg.validate({ "tags" => ["a"] }, schema_as_hash).errors).to eq(["Property `tags` must contain at least 2 items (provided 1)"])
-    expect(Ucfg.validate({ "tags" => ["a", "b", "c", "d"] }, schema_as_hash).errors).to eq(["Property `tags` must contain at most 3 items (provided 4)"])
-    expect(Ucfg.validate({ "tags" => ["a", "a"] }, schema_as_hash).errors).to eq(["Property `tags` must contain unique items"])
+    expect(Ucfg.validate({ "tags" => %w[a b c d] }, schema_as_hash).errors).to eq(["Property `tags` must contain at most 3 items (provided 4)"])
+    expect(Ucfg.validate({ "tags" => %w[a a] }, schema_as_hash).errors).to eq(["Property `tags` must contain unique items"])
   end
 
   it "ignores array keywords for non-array values" do
@@ -105,10 +105,10 @@ RSpec.describe "String and array validation" do
     JSON
     schema_as_hash = JSON.parse(schema)
 
-    expect(Ucfg.validate({ "service" => { "name" => "api", "aliases" => ["main", "x"] } }, schema_as_hash).errors).to eq([
-      "Property `service.name` must have at least 4 characters (provided length 3)",
-      "Property `service.aliases.1` must have at least 3 characters (provided length 1)",
-    ])
+    expect(Ucfg.validate({ "service" => { "name" => "api", "aliases" => %w[main x] } }, schema_as_hash).errors).to eq([
+                                                                                                                        "Property `service.name` must have at least 4 characters (provided length 3)",
+                                                                                                                        "Property `service.aliases.1` must have at least 3 characters (provided length 1)",
+                                                                                                                      ])
   end
 
   it "fails gracefully for invalid pattern definitions in schema" do

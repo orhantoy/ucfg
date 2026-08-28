@@ -12,9 +12,7 @@ module Ucfg
           return context unless schema.key?("type")
 
           type = schema["type"]
-          unless valid_type_definition?(type)
-            return context.add_schema_error(path, "type", "must be a supported JSON Schema type or an array of supported types")
-          end
+          return context.add_schema_error(path, "type", "must be a supported JSON Schema type or an array of supported types") unless valid_type_definition?(type)
 
           return context if Array(type).any? { |expected_type| matches_type?(instance, expected_type) }
 

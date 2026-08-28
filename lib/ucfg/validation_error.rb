@@ -14,10 +14,10 @@ module Ucfg
 
     def to_h
       {
-        :message => message,
-        :path => path,
-        :keyword => keyword,
-        :type => type,
+        message: message,
+        path: path,
+        keyword: keyword,
+        type: type,
       }
     end
 

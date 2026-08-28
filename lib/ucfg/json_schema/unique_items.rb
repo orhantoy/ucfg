@@ -11,9 +11,7 @@ module Ucfg
         def validate(instance, schema, path:, context:)
           return context unless schema.key?("uniqueItems")
 
-          unless [true, false].include?(schema["uniqueItems"])
-            return context.add_schema_error(path, "uniqueItems", "must be a boolean")
-          end
+          return context.add_schema_error(path, "uniqueItems", "must be a boolean") unless [true, false].include?(schema["uniqueItems"])
 
           return context unless schema["uniqueItems"] == true
           return context unless instance.is_a?(Array)

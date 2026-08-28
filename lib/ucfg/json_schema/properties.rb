@@ -11,9 +11,7 @@ module Ucfg
         def validate(instance, schema, path:, context:)
           return context unless schema.key?("properties")
 
-          unless schema["properties"].is_a?(Hash)
-            return context.add_schema_error(path, "properties", "must be an object")
-          end
+          return context.add_schema_error(path, "properties", "must be an object") unless schema["properties"].is_a?(Hash)
 
           valid_schemas = validate_property_schemas(schema["properties"], path: path, context: context)
           return context unless valid_schemas

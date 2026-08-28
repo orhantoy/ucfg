@@ -4,20 +4,20 @@ RSpec.describe Ucfg::ValidationError do
   it "exposes structured error attributes and a hash representation" do
     error = described_class.new(
       message: "Property `service.port` must be of type `integer`",
-      path: ["service", "port"],
+      path: %w[service port],
       keyword: "type",
       type: :validation,
     )
 
     expect(error.message).to eq("Property `service.port` must be of type `integer`")
-    expect(error.path).to eq(["service", "port"])
+    expect(error.path).to eq(%w[service port])
     expect(error.keyword).to eq("type")
     expect(error.type).to eq(:validation)
     expect(error.to_h).to eq(
-      :message => "Property `service.port` must be of type `integer`",
-      :path => ["service", "port"],
-      :keyword => "type",
-      :type => :validation,
+      message: "Property `service.port` must be of type `integer`",
+      path: %w[service port],
+      keyword: "type",
+      type: :validation,
     )
     expect(error.to_s).to eq("Property `service.port` must be of type `integer`")
   end
@@ -45,10 +45,10 @@ RSpec.describe Ucfg::ValidationError do
     keyword << " changed"
 
     expect(error.to_h).to eq(
-      :message => "message",
-      :path => ["name"],
-      :keyword => "type",
-      :type => :validation,
+      message: "message",
+      path: ["name"],
+      keyword: "type",
+      type: :validation,
     )
     expect(error).to be_frozen
     expect(error.message).to be_frozen
@@ -71,10 +71,10 @@ RSpec.describe Ucfg::ValidationError do
 
     expect(result.errors).to eq(["message"])
     expect(result.error_details.first.to_h).to eq(
-      :message => "message",
-      :path => ["name"],
-      :keyword => "type",
-      :type => :validation,
+      message: "message",
+      path: ["name"],
+      keyword: "type",
+      type: :validation,
     )
     expect(result).to be_frozen
     expect(result.errors).to be_frozen

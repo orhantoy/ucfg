@@ -387,7 +387,8 @@ ucfg check config/app.yml --schema config/schema.yml
 
 ## Development
 
-After checking out the repository, install dependencies and run the test suite:
+After checking out the repository, install dependencies, then run the test suite
+and style checks:
 
 ```sh
 bin/setup

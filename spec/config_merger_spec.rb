@@ -11,7 +11,7 @@ RSpec.describe Ucfg::ConfigMerger do
     it "deep merges nested hashes" do
       merged = described_class.merge(
         { "a" => { "b" => 1 } },
-        { "a" => { "c" => 2 } }
+        { "a" => { "c" => 2 } },
       )
 
       expect(merged).to eq({ "a" => { "b" => 1, "c" => 2 } })
@@ -20,7 +20,7 @@ RSpec.describe Ucfg::ConfigMerger do
     it "applies nil values from the override" do
       merged = described_class.merge(
         { "a" => { "b" => 1, "c" => 2 } },
-        { "a" => { "b" => nil } }
+        { "a" => { "b" => nil } },
       )
 
       expect(merged).to eq({ "a" => { "b" => nil, "c" => 2 } })
@@ -29,7 +29,7 @@ RSpec.describe Ucfg::ConfigMerger do
     it "replaces arrays instead of concatenating them" do
       merged = described_class.merge(
         { "a" => [1, 2] },
-        { "a" => [3] }
+        { "a" => [3] },
       )
 
       expect(merged).to eq({ "a" => [3] })
@@ -54,11 +54,11 @@ RSpec.describe Ucfg::ConfigMerger do
     it "does not mutate either input hash" do
       base = {
         "nested" => { "value" => 1 },
-        "array" => [1, 2]
+        "array" => [1, 2],
       }
       override = {
         "nested" => { "other" => 2 },
-        "array" => [3]
+        "array" => [3],
       }
 
       base_before = Marshal.load(Marshal.dump(base))
@@ -73,7 +73,7 @@ RSpec.describe Ucfg::ConfigMerger do
     it "preserves string and symbol keys as-is" do
       merged = described_class.merge(
         { "a" => 1, b: 2 },
-        { "a" => 3, b: 4, c: 5, "d" => 6 }
+        { "a" => 3, b: 4, c: 5, "d" => 6 },
       )
 
       expect(merged).to eq({ "a" => 3, b: 4, c: 5, "d" => 6 })

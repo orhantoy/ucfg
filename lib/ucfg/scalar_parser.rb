@@ -2,8 +2,8 @@
 
 module Ucfg
   module ScalarParser
-    INTEGER_PATTERN = /\A-?(?:0|[1-9][0-9]*)\z/.freeze
-    FLOAT_PATTERN = /\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+(?:[eE][+-]?[0-9]+)?|[eE][+-]?[0-9]+)\z/.freeze
+    INTEGER_PATTERN = /\A-?(?:0|[1-9][0-9]*)\z/
+    FLOAT_PATTERN = /\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+(?:[eE][+-]?[0-9]+)?|[eE][+-]?[0-9]+)\z/
 
     module_function
 

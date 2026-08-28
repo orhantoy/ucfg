@@ -12,7 +12,7 @@ module Ucfg
           return context unless exact_legacy_range?(schema)
           return context unless instance.is_a?(Numeric)
 
-          return context if schema["min"] <= instance && schema["max"] >= instance
+          return context if instance.between?(schema["min"], schema["max"])
 
           context.add_error(
             "Property `#{path.join('.')}` must be between #{schema['min']} and #{schema['max']} (provided #{instance})",

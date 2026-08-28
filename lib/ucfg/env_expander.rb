@@ -31,9 +31,7 @@ module Ucfg
         pieces = parse_pieces(value, env: env, parsers: parsers)
         return value if pieces.nil?
 
-        if parse_whole && pieces.length == 1 && pieces.first[:type] == :expansion
-          return parse_env_value(pieces.first[:value], parser: parser_for(pieces.first[:name], parsers))
-        end
+        return parse_env_value(pieces.first[:value], parser: parser_for(pieces.first[:name], parsers)) if parse_whole && pieces.length == 1 && pieces.first[:type] == :expansion
 
         pieces.map { |piece| piece[:value] }.join
       end
@@ -66,7 +64,7 @@ module Ucfg
 
             expression = value[(dollar_index + 2)...close_index]
             resolved = resolve_expression(expression, env: env, parsers: parsers)
-            pieces << { :type => :expansion, :name => resolved[:name], :value => resolved[:value] }
+            pieces << { type: :expansion, name: resolved[:name], value: resolved[:value] }
             saw_expansion = true
             index = close_index + 1
           else
@@ -86,7 +84,7 @@ module Ucfg
         if pieces.last&.fetch(:type) == :literal
           pieces.last[:value] += value
         else
-          pieces << { :type => :literal, :value => value }
+          pieces << { type: :literal, value: value }
         end
       end
 
@@ -95,8 +93,8 @@ module Ucfg
         raise Error, "Empty environment expansion" if name.nil? || name.empty?
 
         value = env[name]
-        return { :name => name, :value => value } if value && !value.empty?
-        return { :name => name, :value => expand_string(default, env: env, parsers: parsers, parse_whole: false) } unless default.nil?
+        return { name: name, value: value } if value && !value.empty?
+        return { name: name, value: expand_string(default, env: env, parsers: parsers, parse_whole: false) } unless default.nil?
 
         raise Error, "Environment variable `#{name}` is not set"
       end

@@ -42,11 +42,11 @@ RSpec.describe Ucfg do
 
     it "delegates nested hash cases to ConfigMerger and returns its result" do
       allow(described_class).to receive(:load_file).with("base.yml", erb: false, env: false, env_parsers: {}).and_return({
-                                                                                    "service" => { "host" => "localhost", "port" => 8080 }
-                                                                                  })
+                                                                                                                           "service" => { "host" => "localhost", "port" => 8080 },
+                                                                                                                         })
       allow(described_class).to receive(:load_file).with("override.yml", erb: false, env: false, env_parsers: {}).and_return({
-                                                                                        "service" => { "port" => 9090 }
-                                                                                      })
+                                                                                                                               "service" => { "port" => 9090 },
+                                                                                                                             })
 
       merger = double("Ucfg::ConfigMerger")
       stub_const("Ucfg::ConfigMerger", merger)
@@ -55,10 +55,10 @@ RSpec.describe Ucfg do
       final_merged = { "service" => { "host" => "localhost", "port" => 9090 } }
 
       expect(merger).to receive(:merge).with({}, {
-                                                "service" => { "host" => "localhost", "port" => 8080 }
-                                              }).ordered.and_return(merged_after_first)
+                                               "service" => { "host" => "localhost", "port" => 8080 },
+                                             }).ordered.and_return(merged_after_first)
       expect(merger).to receive(:merge).with(merged_after_first, {
-                                               "service" => { "port" => 9090 }
+                                               "service" => { "port" => 9090 },
                                              }).ordered.and_return(final_merged)
 
       result = described_class.load_files("base.yml", "override.yml")
@@ -67,14 +67,14 @@ RSpec.describe Ucfg do
     end
 
     it "delegates array cases to ConfigMerger and returns its result" do
-      allow(described_class).to receive(:load_file).with("base.yml", erb: false, env: false, env_parsers: {}).and_return({ "hosts" => ["a", "b"] })
+      allow(described_class).to receive(:load_file).with("base.yml", erb: false, env: false, env_parsers: {}).and_return({ "hosts" => %w[a b] })
       allow(described_class).to receive(:load_file).with("override.yml", erb: false, env: false, env_parsers: {}).and_return({ "hosts" => ["c"] })
 
       merger = double("Ucfg::ConfigMerger")
       stub_const("Ucfg::ConfigMerger", merger)
 
-      expect(merger).to receive(:merge).with({}, { "hosts" => ["a", "b"] }).ordered.and_return({ "hosts" => ["a", "b"] })
-      expect(merger).to receive(:merge).with({ "hosts" => ["a", "b"] }, { "hosts" => ["c"] }).ordered.and_return({ "hosts" => ["c"] })
+      expect(merger).to receive(:merge).with({}, { "hosts" => %w[a b] }).ordered.and_return({ "hosts" => %w[a b] })
+      expect(merger).to receive(:merge).with({ "hosts" => %w[a b] }, { "hosts" => ["c"] }).ordered.and_return({ "hosts" => ["c"] })
 
       result = described_class.load_files("base.yml", "override.yml")
 
@@ -113,7 +113,7 @@ RSpec.describe Ucfg do
   end
 
   def with_env(key, value)
-    original = ENV[key]
+    original = ENV.fetch(key, nil)
 
     if value.nil?
       ENV.delete(key)

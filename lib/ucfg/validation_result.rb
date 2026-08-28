@@ -21,6 +21,5 @@ module Ucfg
     def valid?
       error_details.empty?
     end
-
   end
 end

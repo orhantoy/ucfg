@@ -11,9 +11,7 @@ module Ucfg
         def validate(instance, schema, path:, context:)
           return context unless schema.key?("pattern")
 
-          unless schema["pattern"].is_a?(String)
-            return context.add_schema_error(path, "pattern", "must be a string")
-          end
+          return context.add_schema_error(path, "pattern", "must be a string") unless schema["pattern"].is_a?(String)
 
           regexp = Regexp.new(schema["pattern"])
           return context unless instance.is_a?(String)

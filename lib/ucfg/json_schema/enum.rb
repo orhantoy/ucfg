@@ -11,9 +11,7 @@ module Ucfg
         def validate(instance, schema, path:, context:)
           return context unless schema.key?("enum")
 
-          unless schema["enum"].is_a?(Array)
-            return context.add_schema_error(path, "enum", "must be an array")
-          end
+          return context.add_schema_error(path, "enum", "must be an array") unless schema["enum"].is_a?(Array)
 
           return context if schema["enum"].include?(instance)
 

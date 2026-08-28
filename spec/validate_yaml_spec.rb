@@ -11,7 +11,7 @@ RSpec.describe Ucfg do
       schema = {
         "properties" => {
           "service" => {
-            "required" => ["name", "enabled"],
+            "required" => %w[name enabled],
             "properties" => {
               "name" => { "type" => "string" },
               "enabled" => { "type" => "boolean" },
@@ -35,7 +35,7 @@ RSpec.describe Ucfg do
       schema = {
         "properties" => {
           "service" => {
-            "required" => ["name", "enabled"],
+            "required" => %w[name enabled],
             "properties" => {
               "name" => { "type" => "string" },
               "enabled" => { "type" => "boolean" },
@@ -114,7 +114,7 @@ RSpec.describe Ucfg do
   end
 
   def with_env(key, value)
-    original = ENV[key]
+    original = ENV.fetch(key, nil)
 
     if value.nil?
       ENV.delete(key)

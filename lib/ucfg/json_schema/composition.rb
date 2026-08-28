@@ -16,9 +16,7 @@ module Ucfg
           return context unless schema.key?(@keyword)
 
           subschemas = schema[@keyword]
-          unless subschemas.is_a?(Array)
-            return context.add_schema_error(path, @keyword, "must be an array of schemas")
-          end
+          return context.add_schema_error(path, @keyword, "must be an array of schemas") unless subschemas.is_a?(Array)
 
           return validate_all(instance, subschemas, path: path, context: context) if @mode == :all
 

@@ -6,9 +6,7 @@ module Ucfg
   module JSONSchema
     class << self
       def validate_recursively(instance, schema, path:, context: ValidationContext.new)
-        unless schema.is_a?(Hash)
-          return context.add_schema_error(path, "schema", "must be an object")
-        end
+        return context.add_schema_error(path, "schema", "must be an object") unless schema.is_a?(Hash)
 
         validator_registry.validators_for(schema).each do |validator|
           validator.validate(instance, schema, path: path, context: context)
@@ -19,29 +17,37 @@ module Ucfg
       def compile_pattern_properties(pattern_properties, path:, context:)
         pattern_properties.each_with_object([]) do |(pattern, sub_schema), compiled_patterns|
           unless sub_schema.is_a?(Hash)
-            context.add_error(
-              "Schema keyword `#{(path + [pattern.to_s]).join('.')}` must be an object",
-              path: path,
-              keyword: pattern.to_s,
-              type: :schema,
-            )
+            add_pattern_schema_error(pattern, path: path, context: context)
             next
           end
 
-          begin
-            compiled_patterns << [Regexp.new(pattern), sub_schema]
-          rescue RegexpError, TypeError
-            context.add_error(
-              "Pattern `#{(path + [pattern.to_s]).join('.')}` is not a valid regular expression",
-              path: path,
-              keyword: pattern.to_s,
-              type: :schema,
-            )
-          end
+          regexp = compile_pattern(pattern, path: path, context: context)
+          compiled_patterns << [regexp, sub_schema] if regexp
         end
       end
 
       private
+
+      def add_pattern_schema_error(pattern, path:, context:)
+        context.add_error(
+          "Schema keyword `#{(path + [pattern.to_s]).join('.')}` must be an object",
+          path: path,
+          keyword: pattern.to_s,
+          type: :schema,
+        )
+      end
+
+      def compile_pattern(pattern, path:, context:)
+        Regexp.new(pattern)
+      rescue RegexpError, TypeError
+        context.add_error(
+          "Pattern `#{(path + [pattern.to_s]).join('.')}` is not a valid regular expression",
+          path: path,
+          keyword: pattern.to_s,
+          type: :schema,
+        )
+        nil
+      end
 
       def validator_registry
         require "ucfg/json_schema" unless const_defined?(:VALIDATOR_REGISTRY, false)

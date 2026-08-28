@@ -30,7 +30,7 @@ RSpec.describe Ucfg::EnvExpander do
         end
 
         with_env("HOSTS", "h1,h2") do
-          expect(described_class.expand("${A:${HOSTS}}", parsers: { "A" => :csv })).to eq(["h1", "h2"])
+          expect(described_class.expand("${A:${HOSTS}}", parsers: { "A" => :csv })).to eq(%w[h1 h2])
         end
       end
     end
@@ -69,7 +69,7 @@ RSpec.describe Ucfg::EnvExpander do
       with_env("HOSTS", "h1|h2") do
         parser = ->(value) { value.split("|") }
 
-        expect(described_class.expand("${HOSTS}", parsers: { "HOSTS" => parser })).to eq(["h1", "h2"])
+        expect(described_class.expand("${HOSTS}", parsers: { "HOSTS" => parser })).to eq(%w[h1 h2])
       end
     end
 
@@ -112,7 +112,7 @@ RSpec.describe Ucfg::EnvExpander do
   end
 
   def with_env(key, value)
-    original = ENV[key]
+    original = ENV.fetch(key, nil)
 
     if value.nil?
       ENV.delete(key)

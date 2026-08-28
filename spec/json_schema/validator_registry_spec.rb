@@ -5,7 +5,7 @@ RSpec.describe Ucfg::JSONSchema::ValidatorRegistry do
     Class.new(Ucfg::JSONSchema::Validator) do
       handles(*keywords)
 
-      def self.validate(_instance, _schema, path:, context:)
+      def self.validate(_instance, _schema, context:, **_options)
         context
       end
     end

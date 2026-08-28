@@ -38,9 +38,7 @@ RSpec.describe Ucfg::FileLoader do
         File.write(path, "secret: true\n")
         File.chmod(0o000, path)
 
-        if File.readable?(path)
-          skip("unable to make file unreadable in this environment")
-        end
+        skip("unable to make file unreadable in this environment") if File.readable?(path)
 
         expect { described_class.read(path) }
           .to raise_error(Ucfg::Error, /Failed to read file `#{Regexp.escape(path)}`: Permission denied/i)

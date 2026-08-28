@@ -327,7 +327,7 @@ RSpec.describe Ucfg::YAMLLoader do
   end
 
   def with_env(key, value)
-    original = ENV[key]
+    original = ENV.fetch(key, nil)
 
     if value.nil?
       ENV.delete(key)

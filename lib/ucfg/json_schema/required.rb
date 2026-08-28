@@ -11,14 +11,10 @@ module Ucfg
         def validate(instance, schema, path:, context:)
           return context unless schema.key?("required")
 
-          unless schema["required"].is_a?(Array)
-            return context.add_schema_error(path, "required", "must be an array of property names")
-          end
+          return context.add_schema_error(path, "required", "must be an array of property names") unless schema["required"].is_a?(Array)
 
           invalid_required = schema["required"].find { |required_key| !required_key.is_a?(String) }
-          if invalid_required
-            return context.add_schema_error(path, "required", "must contain only property names")
-          end
+          return context.add_schema_error(path, "required", "must contain only property names") if invalid_required
 
           return context unless instance.is_a?(Hash)
 

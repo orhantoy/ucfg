@@ -270,10 +270,10 @@ RSpec.describe Ucfg do
                                     ])
         expect(result.error_details.map(&:to_h)).to eq([
                                                          {
-                                                           :message => "Property `service.enabled` must be of type `boolean` (provided value `nope` of type `string`)",
-                                                           :path => ["service", "enabled"],
-                                                           :keyword => "type",
-                                                           :type => :validation,
+                                                           message: "Property `service.enabled` must be of type `boolean` (provided value `nope` of type `string`)",
+                                                           path: %w[service enabled],
+                                                           keyword: "type",
+                                                           type: :validation,
                                                          },
                                                        ])
       end
@@ -427,7 +427,7 @@ RSpec.describe Ucfg do
   end
 
   def with_env(key, value)
-    original = ENV[key]
+    original = ENV.fetch(key, nil)
     ENV[key] = value
     yield
   ensure
