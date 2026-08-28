@@ -140,6 +140,7 @@ Semantics:
 - arrays and scalar values are replaced
 - `${NAME}` reads from the environment
 - `${NAME:default}` uses a default when the environment variable is missing or empty
+- `$$` escapes to a literal `$`
 - `env_parsers: { "NAME" => :csv }` parses a whole environment value as a
   comma-separated list
 - schema errors are reported before the loaded config is returned
@@ -294,6 +295,21 @@ Embedded environment expressions are rendered as strings:
 ```yaml
 url: postgres://${DATABASE_HOST:localhost}:5432/app
 ```
+
+Write `$$` for a literal `$`, including when a value should keep a `${...}`
+sequence instead of expanding it:
+
+```yaml
+price: $$5
+literal: $${NOT_EXPANDED}
+```
+
+```ruby
+# => { "price" => "$5", "literal" => "${NOT_EXPANDED}" }
+```
+
+A `$` that is not part of `$$` or `${` is left alone, so `a$b` needs no
+escaping.
 
 ## ERB Templates
 

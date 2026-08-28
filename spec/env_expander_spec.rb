@@ -40,6 +40,23 @@ RSpec.describe Ucfg::EnvExpander do
       expect(described_class.expand("prompt: $} ${MISSING:value}")).to eq("prompt: $} value")
     end
 
+    it "preserves a lone dollar sign literally" do
+      expect(described_class.expand("cost: 5$")).to eq("cost: 5$")
+      expect(described_class.expand("a$b")).to eq("a$b")
+      expect(described_class.expand("a$b ${MISSING:1}", env: {})).to eq("a$b 1")
+    end
+
+    it "escapes `$$` to a literal dollar sign with or without a neighbouring expansion" do
+      expect(described_class.expand("cost: $$5", env: {})).to eq("cost: $5")
+      expect(described_class.expand("cost: $$5 ${MISSING:each}", env: {})).to eq("cost: $5 each")
+      expect(described_class.expand("$$", env: {})).to eq("$")
+    end
+
+    it "uses `$$` to opt out of an expansion" do
+      expect(described_class.expand("$${HOST}", env: { "HOST" => "localhost" })).to eq("${HOST}")
+      expect(described_class.expand("$${HOST} ${HOST}", env: { "HOST" => "localhost" })).to eq("${HOST} localhost")
+    end
+
     it "parses whole-value environment expansions into scalar values" do
       expect(described_class.expand("${ENABLED:true}")).to eq(true)
       expect(described_class.expand("${REPLICAS:3}")).to eq(3)

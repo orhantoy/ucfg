@@ -39,7 +39,7 @@ module Ucfg
       def parse_pieces(value, env:, parsers:)
         pieces = []
         index = 0
-        saw_expansion = false
+        rewritten = false
 
         while index < value.length
           dollar_index = value.index("$", index)
@@ -54,6 +54,7 @@ module Ucfg
           case next_char
           when "$"
             append_literal(pieces, "$")
+            rewritten = true
             index = dollar_index + 2
           when "}"
             append_literal(pieces, "$}")
@@ -65,7 +66,7 @@ module Ucfg
             expression = value[(dollar_index + 2)...close_index]
             resolved = resolve_expression(expression, env: env, parsers: parsers)
             pieces << { type: :expansion, name: resolved[:name], value: resolved[:value] }
-            saw_expansion = true
+            rewritten = true
             index = close_index + 1
           else
             append_literal(pieces, "$")
@@ -73,7 +74,7 @@ module Ucfg
           end
         end
 
-        return nil unless saw_expansion
+        return nil unless rewritten
 
         pieces
       end
