@@ -111,6 +111,11 @@ RSpec.describe Ucfg do
       expect { described_class.validate_yaml("value: true", {}, erb: true, env: true) }
         .to raise_error(Ucfg::Error, /cannot be enabled together/i)
     end
+
+    it "raises for non-string sources" do
+      expect { described_class.validate_yaml(123, {}) }
+        .to raise_error(Ucfg::Error, /YAML source must be a string/i)
+    end
   end
 
   def with_env(key, value)

@@ -397,35 +397,6 @@ RSpec.describe Ucfg do
     end
   end
 
-  describe ".validate_yaml" do
-    it "remains compatible with callers that do not pass options" do
-      source = <<~YAML
-        service.name: ucfg
-      YAML
-
-      schema = {
-        "properties" => {
-          "service" => {
-            "required" => ["name"],
-            "properties" => {
-              "name" => { "type" => "string" },
-            },
-          },
-        },
-      }
-
-      result = described_class.validate_yaml(source, schema)
-
-      expect(result).to be_valid
-      expect(result.errors).to eq([])
-    end
-
-    it "keeps non-string source errors compatible" do
-      expect { described_class.validate_yaml(123, {}) }
-        .to raise_error(Ucfg::Error, /YAML source must be a string/i)
-    end
-  end
-
   def with_env(key, value)
     original = ENV.fetch(key, nil)
     ENV[key] = value

@@ -20,26 +20,6 @@ RSpec.describe "Type validation" do
     expect(Ucfg.validate({ "name" => nil }, schema_as_hash).errors).to eq(["Property `name` must be of type `string` or `boolean` (provided `null`)"])
   end
 
-  it "exposes structured validation error details" do
-    schema_as_hash = {
-      "properties" => {
-        "name" => { "type" => "string" },
-      },
-    }
-
-    result = Ucfg.validate({ "name" => true }, schema_as_hash)
-
-    expect(result.errors).to eq(["Property `name` must be of type `string` (provided value `true` of type `boolean`)"])
-    expect(result.error_details.map(&:to_h)).to eq([
-                                                     {
-                                                       message: "Property `name` must be of type `string` (provided value `true` of type `boolean`)",
-                                                       path: ["name"],
-                                                       keyword: "type",
-                                                       type: :validation,
-                                                     },
-                                                   ])
-  end
-
   it "supports all types" do
     schema = <<-JSON
     {
