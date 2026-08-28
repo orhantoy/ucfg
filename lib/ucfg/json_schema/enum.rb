@@ -16,7 +16,7 @@ module Ucfg
           return context if schema["enum"].include?(instance)
 
           context.add_error(
-            "Property `#{path.join('.')}` contains an unsupported value (provided `#{instance}`)",
+            "#{subject(path)} contains an unsupported value (provided `#{instance}`)",
             path: path,
             keyword: "enum",
           )

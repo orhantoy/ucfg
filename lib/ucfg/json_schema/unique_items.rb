@@ -18,7 +18,7 @@ module Ucfg
           return context if instance.length == instance.uniq.length
 
           context.add_error(
-            "Property `#{path.join('.')}` must contain unique items",
+            "#{subject(path)} must contain unique items",
             path: path,
             keyword: "uniqueItems",
           )

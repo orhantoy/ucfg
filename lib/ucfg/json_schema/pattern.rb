@@ -18,13 +18,13 @@ module Ucfg
           return context if instance.match?(regexp)
 
           context.add_error(
-            "Property `#{path.join('.')}` must match pattern `#{schema['pattern']}` (provided `#{instance}`)",
+            "#{subject(path)} must match pattern `#{schema['pattern']}` (provided `#{instance}`)",
             path: path,
             keyword: "pattern",
           )
         rescue RegexpError => e
           context.add_error(
-            "Property `#{path.join('.')}` has invalid pattern `#{schema['pattern']}` in schema (#{e.message})",
+            "#{subject(path)} has invalid pattern `#{schema['pattern']}` in schema (#{e.message})",
             path: path,
             keyword: "pattern",
             type: :schema,

@@ -14,6 +14,10 @@ module Ucfg
         def validate(_instance, _schema, path:, context:)
           raise NotImplementedError, "#{name} must implement .validate"
         end
+
+        def subject(path)
+          path.empty? ? "Root value" : "Property `#{path.join('.')}`"
+        end
       end
     end
   end

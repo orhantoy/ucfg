@@ -13,7 +13,7 @@ module Ucfg
           return context if schema["const"] == instance
 
           context.add_error(
-            "Property `#{path.join('.')}` must have value `#{schema['const']}` (provided `#{instance}`)",
+            "#{subject(path)} must have value `#{schema['const']}` (provided `#{instance}`)",
             path: path,
             keyword: "const",
           )

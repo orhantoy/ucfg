@@ -23,7 +23,7 @@ module Ucfg
             next if schema[keyword].public_send(operator, instance)
 
             context.add_error(
-              "Property `#{path.join('.')}` must be #{text} #{schema[keyword]} (provided #{instance})",
+              "#{subject(path)} must be #{text} #{schema[keyword]} (provided #{instance})",
               path: path,
               keyword: keyword,
             )

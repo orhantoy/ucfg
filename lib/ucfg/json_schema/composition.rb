@@ -69,9 +69,9 @@ module Ucfg
 
         def failure_message(path, matches)
           if @mode == :any
-            "Property `#{path.join('.')}` must match at least one schema in `#{@keyword}`"
+            "#{subject(path)} must match at least one schema in `#{@keyword}`"
           else
-            "Property `#{path.join('.')}` must match exactly one schema in `#{@keyword}` (matched #{matches})"
+            "#{subject(path)} must match exactly one schema in `#{@keyword}` (matched #{matches})"
           end
         end
       end

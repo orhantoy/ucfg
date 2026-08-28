@@ -15,7 +15,7 @@ module Ucfg
           return context if instance.between?(schema["min"], schema["max"])
 
           context.add_error(
-            "Property `#{path.join('.')}` must be between #{schema['min']} and #{schema['max']} (provided #{instance})",
+            "#{subject(path)} must be between #{schema['min']} and #{schema['max']} (provided #{instance})",
             path: path,
             keyword: "min/max",
           )

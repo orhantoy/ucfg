@@ -17,7 +17,7 @@ module Ucfg
           return context if Array(type).any? { |expected_type| matches_type?(instance, expected_type) }
 
           context.add_error(
-            "Property `#{path.join('.')}` must be of type #{type_to_sentence(schema['type'])} (#{value_type_error(instance)})",
+            "#{subject(path)} must be of type #{type_to_sentence(schema['type'])} (#{value_type_error(instance)})",
             path: path,
             keyword: "type",
           )

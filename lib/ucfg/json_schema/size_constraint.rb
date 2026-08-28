@@ -26,7 +26,7 @@ module Ucfg
           return context if instance.length.public_send(@operator, limit)
 
           context.add_error(
-            "Property `#{path.join('.')}` must #{@requirement} #{limit} #{@unit} " \
+            "#{subject(path)} must #{@requirement} #{limit} #{@unit} " \
             "(provided #{@provided_label}#{instance.length})",
             path: path,
             keyword: @keyword,
