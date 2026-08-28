@@ -81,6 +81,12 @@ RSpec.describe "String and array validation" do
     expect(Ucfg.validate({ "tags" => "abc" }, schema_as_hash)).to be_valid
   end
 
+  it "allows duplicates when uniqueItems is false" do
+    schema = { "properties" => { "tags" => { "type" => "array", "uniqueItems" => false } } }
+
+    expect(Ucfg.validate({ "tags" => %w[a a] }, schema)).to be_valid
+  end
+
   it "includes nested property path and array index path in errors" do
     schema = <<-JSON
     {

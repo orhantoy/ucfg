@@ -51,6 +51,18 @@ RSpec.describe "Base validation" do
     expect(result.errors).to eq(["Property `version` is not supported"])
   end
 
+  it "allows unknown properties when additionalProperties is true" do
+    schema = { "additionalProperties" => true, "properties" => { "name" => { "type" => "string" } } }
+
+    expect(Ucfg.validate({ "version" => "7.9" }, schema)).to be_valid
+  end
+
+  it "allows unknown properties when additionalProperties is omitted" do
+    schema = { "properties" => { "name" => { "type" => "string" } } }
+
+    expect(Ucfg.validate({ "version" => "7.9" }, schema)).to be_valid
+  end
+
   it "fails if string property is provided as other type" do
     config = <<-JSON
     {

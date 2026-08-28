@@ -320,6 +320,28 @@ RSpec.describe Ucfg::YAMLLoader do
       expect { described_class.load(yaml) }.to raise_error(Ucfg::Error, /invalid yaml syntax/i)
     end
 
+    it "raises for non-string object keys" do
+      expect { described_class.load("? [a]\n: 1\n") }
+        .to raise_error(Ucfg::Error, "Only string object keys are supported at line 1, column 3")
+    end
+
+    it "reports the line and column of the offending node" do
+      cases = {
+        "items: [one, two]\n" => "Flow style sequences are not supported at line 1, column 8",
+        "server: *defaults\n" => "Aliases and anchors are not supported at line 1, column 9",
+        "message: |\n  hello\n" => "Block scalars are not supported at line 1, column 10",
+        "value: !custom tagged\n" => "Explicit tags are not supported at line 1, column 8",
+        "a: 1\n b: 2\n" => "Invalid YAML syntax at line 2, column 3: mapping values are not allowed in this context",
+      }
+
+      aggregate_failures do
+        cases.each do |yaml, message|
+          expect { described_class.load(yaml) }
+            .to raise_error(Ucfg::Error, message), "unexpected message for #{yaml.inspect}"
+        end
+      end
+    end
+
     it "raises for an empty yaml document" do
       expect { described_class.load("") }.to raise_error(Ucfg::Error, /document is empty/i)
       expect { described_class.load("   \n") }.to raise_error(Ucfg::Error, /document is empty/i)

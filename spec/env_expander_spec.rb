@@ -82,6 +82,18 @@ RSpec.describe Ucfg::EnvExpander do
       end
     end
 
+    it "keeps an empty trailing field when parsing csv values" do
+      with_env("VALUES", "a,") do
+        expect(described_class.expand("${VALUES}", parsers: { "VALUES" => :csv })).to eq(["a", ""])
+      end
+    end
+
+    it "looks up parsers registered under symbol keys" do
+      with_env("VALUES", "1,2") do
+        expect(described_class.expand("${VALUES}", parsers: { VALUES: :csv })).to eq([1, 2])
+      end
+    end
+
     it "supports callable environment parsers" do
       with_env("HOSTS", "h1|h2") do
         parser = ->(value) { value.split("|") }
