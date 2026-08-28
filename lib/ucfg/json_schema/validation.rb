@@ -10,7 +10,7 @@ module Ucfg
           return schema_error(path, "schema", "must be an object")
         end
 
-        validators.reduce(empty_result) do |memo, validator|
+        validator_registry.validators_for(schema).reduce(empty_result) do |memo, validator|
           result = validator.validate(instance, schema, path: path)
           combine_results(memo, result)
         end
@@ -79,9 +79,9 @@ module Ucfg
 
       private
 
-      def validators
-        require "ucfg/json_schema" unless const_defined?(:VALIDATORS, false)
-        VALIDATORS
+      def validator_registry
+        require "ucfg/json_schema" unless const_defined?(:VALIDATOR_REGISTRY, false)
+        VALIDATOR_REGISTRY
       end
     end
   end

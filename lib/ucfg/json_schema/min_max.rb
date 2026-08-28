@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "ucfg/json_schema/validation"
+require "ucfg/json_schema/validator"
 
 module Ucfg
   module JSONSchema
-    class MinMax
+    class MinMax < Validator
+      handles "min", "max"
+
       class << self
         def validate(instance, schema, path:)
           return unless exact_legacy_range?(schema)

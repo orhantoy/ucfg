@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "ucfg/json_schema/validation"
+require "ucfg/json_schema/validator_registry"
 require "ucfg/json_schema/additional_properties"
 require "ucfg/json_schema/all_of"
 require "ucfg/json_schema/any_of"
@@ -46,5 +47,7 @@ module Ucfg
       JSONSchema::UniqueItems,
       JSONSchema::Properties,
     ].freeze
+
+    VALIDATOR_REGISTRY = ValidatorRegistry.new(VALIDATORS)
   end
 end

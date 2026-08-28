@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "ucfg/json_schema/validation"
+require "ucfg/json_schema/validator"
 
 module Ucfg
   module JSONSchema
-    class Pattern
+    class Pattern < Validator
+      handles "pattern"
+
       class << self
         def validate(instance, schema, path:)
           return unless schema.key?("pattern")

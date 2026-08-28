@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "ucfg/json_schema/validation"
+require "ucfg/json_schema/validator"
 
 module Ucfg
   module JSONSchema
-    class AdditionalProperties
+    class AdditionalProperties < Validator
+      handles "additionalProperties"
+
       class << self
         def validate(instance, schema, path:)
           return unless schema.key?("additionalProperties")
