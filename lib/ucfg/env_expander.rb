@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "ucfg/error"
+require "ucfg/scalar_parser"
+require "ucfg/source_coercion"
 
 module Ucfg
   module EnvExpander
@@ -19,16 +21,11 @@ module Ucfg
       end
 
       def expand_source(source, env: ENV)
-        expand_string(normalize_source(source), env: env, parsers: {}).to_s
+        template = SourceCoercion.to_string(source, label: "Template")
+        expand_string(template, env: env, parsers: {}).to_s
       end
 
       private
-
-      def normalize_source(source)
-        return source.to_str if source.respond_to?(:to_str)
-
-        raise Error, "Template source must be a string"
-      end
 
       def expand_string(value, env:, parsers:, parse_whole: true)
         pieces = parse_pieces(value, env: env, parsers: parsers)
@@ -129,39 +126,18 @@ module Ucfg
         return value unless value.is_a?(String)
         return apply_parser(value, parser) if parser
 
-        parse_env_scalar(value)
+        ScalarParser.parse(value)
       end
 
       def apply_parser(value, parser)
-        return value.split(",", -1).map { |item| parse_env_scalar(item.strip) } if [:csv, "csv"].include?(parser)
+        return value.split(",", -1).map { |item| ScalarParser.parse(item.strip) } if [:csv, "csv"].include?(parser)
         return parser.call(value) if parser.respond_to?(:call)
 
         raise Error, "Unsupported environment parser `#{parser}`"
       end
 
-      def parse_env_scalar(value)
-        case value
-        when "true"
-          true
-        when "false"
-          false
-        when "null"
-          nil
-        else
-          parse_number(value) || value
-        end
-      end
-
       def parser_for(name, parsers)
         parsers[name] || parsers[name.to_sym]
-      end
-
-      def parse_number(value)
-        return Integer(value, 10) if value.match?(/\A-?(?:0|[1-9][0-9]*)\z/)
-        return Float(value) if value.match?(/\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)\z/)
-        return Float(value) if value.match?(/\A-?(?:0|[1-9][0-9]*)\.[0-9]+\z/)
-
-        nil
       end
     end
   end

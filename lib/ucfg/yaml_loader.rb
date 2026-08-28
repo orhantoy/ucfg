@@ -3,12 +3,14 @@
 require "psych"
 require "ucfg/error"
 require "ucfg/env_expander"
+require "ucfg/scalar_parser"
+require "ucfg/source_coercion"
 
 module Ucfg
   module YAMLLoader
     class << self
       def load(source, env: false, env_parsers: {})
-        yaml = normalize_source(source)
+        yaml = SourceCoercion.to_string(source, label: "YAML")
 
         stream = Psych.parse_stream(yaml)
         raise Error, "YAML document is empty" if stream.children.empty?
@@ -24,12 +26,6 @@ module Ucfg
       end
 
       private
-
-      def normalize_source(source)
-        return source.to_str if source.respond_to?(:to_str)
-
-        raise Error, "YAML source must be a string"
-      end
 
       def convert_node(node, path:)
         reject_anchor!(node)
@@ -94,28 +90,11 @@ module Ucfg
         return node.value if quoted_scalar?(node)
         return nil if node.value == ""
 
-        case node.value
-        when "true"
-          true
-        when "false"
-          false
-        when "null"
-          nil
-        else
-          parse_number(node.value) || node.value
-        end
+        ScalarParser.parse(node.value)
       end
 
       def quoted_scalar?(node)
         [Psych::Nodes::Scalar::SINGLE_QUOTED, Psych::Nodes::Scalar::DOUBLE_QUOTED].include?(node.style)
-      end
-
-      def parse_number(value)
-        return Integer(value, 10) if value.match?(/\A-?(?:0|[1-9][0-9]*)\z/)
-        return Float(value) if value.match?(/\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)\z/)
-        return Float(value) if value.match?(/\A-?(?:0|[1-9][0-9]*)\.[0-9]+\z/)
-
-        nil
       end
 
       def insert_mapping_value!(result, raw_key, value_node, path:)

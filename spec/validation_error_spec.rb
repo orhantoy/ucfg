@@ -22,10 +22,39 @@ RSpec.describe Ucfg::ValidationError do
     expect(error.to_s).to eq("Property `service.port` must be of type `integer`")
   end
 
-  it "compares equal to its message for compatibility" do
-    error = described_class.new(message: "message")
+  it "uses symmetric value equality and hashing" do
+    error = described_class.new(message: "message", path: ["name"], keyword: "type")
+    matching_error = described_class.new(message: "message", path: ["name"], keyword: "type")
 
-    expect(error).to eq("message")
+    expect(error).to eq(matching_error)
+    expect(error).to eql(matching_error)
+    expect(error.hash).to eq(matching_error.hash)
+    expect({ error => :found }.fetch(matching_error)).to eq(:found)
+    expect(error).not_to eq("message")
+    expect("message").not_to eq(error)
+  end
+
+  it "copies and freezes its value state" do
+    message = +"message"
+    segment = +"name"
+    keyword = +"type"
+    error = described_class.new(message: message, path: [segment], keyword: keyword)
+
+    message << " changed"
+    segment << " changed"
+    keyword << " changed"
+
+    expect(error.to_h).to eq(
+      :message => "message",
+      :path => ["name"],
+      :keyword => "type",
+      :type => :validation,
+    )
+    expect(error).to be_frozen
+    expect(error.message).to be_frozen
+    expect(error.path).to be_frozen
+    expect(error.path.first).to be_frozen
+    expect(error.keyword).to be_frozen
   end
 
   it "can be normalized from string-keyed hashes by result objects" do
@@ -47,5 +76,8 @@ RSpec.describe Ucfg::ValidationError do
       :keyword => "type",
       :type => :validation,
     )
+    expect(result).to be_frozen
+    expect(result.errors).to be_frozen
+    expect(result.error_details).to be_frozen
   end
 end

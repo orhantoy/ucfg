@@ -5,10 +5,11 @@ module Ucfg
     attr_reader :message, :path, :keyword, :type
 
     def initialize(message:, path: nil, keyword: nil, type: :validation)
-      @message = message
-      @path = path&.dup&.freeze
-      @keyword = keyword
-      @type = type
+      @message = immutable_string(message)
+      @path = path&.map { |segment| immutable_string(segment) }&.freeze
+      @keyword = immutable_string(keyword)
+      @type = immutable_string(type)
+      freeze
     end
 
     def to_h
@@ -25,13 +26,18 @@ module Ucfg
     end
 
     def ==(other)
-      if other.is_a?(String)
-        message == other
-      elsif other.is_a?(self.class)
-        to_h == other.to_h
-      else
-        super
-      end
+      other.instance_of?(self.class) && to_h == other.to_h
+    end
+    alias eql? ==
+
+    def hash
+      [self.class, message, path, keyword, type].hash
+    end
+
+    private
+
+    def immutable_string(value)
+      value.is_a?(String) ? value.dup.freeze : value
     end
   end
 end
