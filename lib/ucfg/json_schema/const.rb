@@ -8,11 +8,11 @@ module Ucfg
       handles "const"
 
       class << self
-        def validate(instance, schema, path:)
-          return unless schema.key?("const")
-          return if schema["const"] == instance
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?("const")
+          return context if schema["const"] == instance
 
-          JSONSchema.result_with_validation_error(
+          context.add_error(
             "Property `#{path.join('.')}` must have value `#{schema['const']}` (provided `#{instance}`)",
             path: path,
             keyword: "const",

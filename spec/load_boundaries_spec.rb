@@ -45,7 +45,8 @@ RSpec.describe "library load boundaries" do
     source = <<~'RUBY'
       require "ucfg/json_schema/properties"
       schema = { "properties" => { "name" => { "type" => "string" } } }
-      result = Ucfg::JSONSchema::Properties.validate({ "name" => 1 }, schema, path: [])
+      context = Ucfg::JSONSchema::ValidationContext.new
+      result = Ucfg::JSONSchema::Properties.validate({ "name" => 1 }, schema, path: [], context: context)
       exit(result.errors.empty? ? 1 : 0)
     RUBY
 

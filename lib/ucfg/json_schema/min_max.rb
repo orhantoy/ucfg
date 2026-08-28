@@ -8,13 +8,13 @@ module Ucfg
       handles "min", "max"
 
       class << self
-        def validate(instance, schema, path:)
-          return unless exact_legacy_range?(schema)
-          return unless instance.is_a?(Numeric)
+        def validate(instance, schema, path:, context:)
+          return context unless exact_legacy_range?(schema)
+          return context unless instance.is_a?(Numeric)
 
-          return if schema["min"] <= instance && schema["max"] >= instance
+          return context if schema["min"] <= instance && schema["max"] >= instance
 
-          JSONSchema.result_with_validation_error(
+          context.add_error(
             "Property `#{path.join('.')}` must be between #{schema['min']} and #{schema['max']} (provided #{instance})",
             path: path,
             keyword: "min/max",

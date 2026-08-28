@@ -1,80 +1,44 @@
 # frozen_string_literal: true
 
-require "ucfg/validation_result"
+require "ucfg/json_schema/validation_context"
 
 module Ucfg
   module JSONSchema
     class << self
-      def validate_recursively(instance, schema, path:)
+      def validate_recursively(instance, schema, path:, context: ValidationContext.new)
         unless schema.is_a?(Hash)
-          return schema_error(path, "schema", "must be an object")
+          return context.add_schema_error(path, "schema", "must be an object")
         end
 
-        validator_registry.validators_for(schema).reduce(empty_result) do |memo, validator|
-          result = validator.validate(instance, schema, path: path)
-          combine_results(memo, result)
+        validator_registry.validators_for(schema).each do |validator|
+          validator.validate(instance, schema, path: path, context: context)
         end
+        context
       end
 
-      def combine_results(a, b)
-        return a if b.nil?
-        return b if a.nil?
-
-        ValidationResult.new(error_details: a.error_details + b.error_details)
-      end
-
-      def empty_result
-        ValidationResult.new
-      end
-
-      def result_with_validation_error(message, path: nil, keyword: nil, type: :validation)
-        ValidationResult.new(
-          error_details: [
-            ValidationError.new(message: message, path: path, keyword: keyword, type: type),
-          ],
-        )
-      end
-
-      def schema_error(path, keyword, expectation)
-        result_with_validation_error(
-          "Schema keyword `#{schema_path(path, keyword)}` #{expectation}",
-          path: path,
-          keyword: keyword,
-          type: :schema,
-        )
-      end
-
-      def compile_pattern_properties(pattern_properties, path:)
-        pattern_properties.reduce([[], empty_result]) do |(compiled_patterns, errors), (pattern, sub_schema)|
+      def compile_pattern_properties(pattern_properties, path:, context:)
+        pattern_properties.each_with_object([]) do |(pattern, sub_schema), compiled_patterns|
           unless sub_schema.is_a?(Hash)
-            result = result_with_validation_error(
+            context.add_error(
               "Schema keyword `#{(path + [pattern.to_s]).join('.')}` must be an object",
               path: path,
               keyword: pattern.to_s,
               type: :schema,
             )
-            errors = combine_results(errors, result)
-            next [compiled_patterns, errors]
+            next
           end
 
           begin
             compiled_patterns << [Regexp.new(pattern), sub_schema]
           rescue RegexpError, TypeError
-            result = result_with_validation_error(
+            context.add_error(
               "Pattern `#{(path + [pattern.to_s]).join('.')}` is not a valid regular expression",
               path: path,
               keyword: pattern.to_s,
               type: :schema,
             )
-            errors = combine_results(errors, result)
           end
-
-          [compiled_patterns, errors]
         end
-      end
-
-      def schema_path(path, keyword)
-        (path + [keyword]).join(".")
       end
 
       private

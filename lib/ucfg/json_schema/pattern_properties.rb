@@ -8,29 +8,31 @@ module Ucfg
       handles "patternProperties"
 
       class << self
-        def validate(instance, schema, path:)
-          return unless schema.key?("patternProperties")
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?("patternProperties")
 
           unless schema["patternProperties"].is_a?(Hash)
-            return JSONSchema.schema_error(path, "patternProperties", "must be an object")
+            return context.add_schema_error(path, "patternProperties", "must be an object")
           end
 
-          compiled_patterns, errors = JSONSchema.compile_pattern_properties(schema["patternProperties"], path: path + ["patternProperties"])
-          return errors unless errors.valid?
+          initial_error_count = context.error_count
+          compiled_patterns = JSONSchema.compile_pattern_properties(
+            schema["patternProperties"],
+            path: path + ["patternProperties"],
+            context: context,
+          )
+          return context if context.error_count > initial_error_count
 
-          return unless instance.is_a?(Hash)
+          return context unless instance.is_a?(Hash)
 
-          result = instance.reduce(JSONSchema.empty_result) do |memo, (key, value)|
-            key_result = compiled_patterns.reduce(JSONSchema.empty_result) do |key_memo, (regex, sub_schema)|
-              next key_memo unless regex.match?(key.to_s)
+          instance.each do |key, value|
+            compiled_patterns.each do |regex, sub_schema|
+              next unless regex.match?(key.to_s)
 
-              result = JSONSchema.validate_recursively(value, sub_schema, path: path + [key])
-              JSONSchema.combine_results(key_memo, result)
+              JSONSchema.validate_recursively(value, sub_schema, path: path + [key], context: context)
             end
-            JSONSchema.combine_results(memo, key_result)
           end
-
-          JSONSchema.combine_results(errors, result)
+          context
         end
       end
     end

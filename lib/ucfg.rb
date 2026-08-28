@@ -68,8 +68,7 @@ module Ucfg
   end
 
   def self.validate(config, schema)
-    result = JSONSchema.validate_recursively(config, schema, path: [])
-    ValidationResult.from_json_schema_validation(result)
+    JSONSchema.validate_recursively(config, schema, path: []).to_result
   end
 
   def self.load_schema(schema)

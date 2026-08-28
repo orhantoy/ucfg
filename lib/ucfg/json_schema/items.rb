@@ -8,19 +8,19 @@ module Ucfg
       handles "items"
 
       class << self
-        def validate(instance, schema, path:)
-          return unless schema.key?("items")
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?("items")
 
           unless schema["items"].is_a?(Hash)
-            return JSONSchema.schema_error(path, "items", "must be an object")
+            return context.add_schema_error(path, "items", "must be an object")
           end
 
-          return unless instance.is_a?(Array)
+          return context unless instance.is_a?(Array)
 
-          instance.each_with_index.reduce(JSONSchema.empty_result) do |memo, (item, index)|
-            result = JSONSchema.validate_recursively(item, schema["items"], path: path + [index])
-            JSONSchema.combine_results(memo, result)
+          instance.each_with_index do |item, index|
+            JSONSchema.validate_recursively(item, schema["items"], path: path + [index], context: context)
           end
+          context
         end
       end
     end

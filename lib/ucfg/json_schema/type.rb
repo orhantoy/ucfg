@@ -8,17 +8,17 @@ module Ucfg
       handles "type"
 
       class << self
-        def validate(instance, schema, path:)
-          return unless schema.key?("type")
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?("type")
 
           type = schema["type"]
           unless valid_type_definition?(type)
-            return JSONSchema.schema_error(path, "type", "must be a supported JSON Schema type or an array of supported types")
+            return context.add_schema_error(path, "type", "must be a supported JSON Schema type or an array of supported types")
           end
 
-          return if Array(type).any? { |expected_type| matches_type?(instance, expected_type) }
+          return context if Array(type).any? { |expected_type| matches_type?(instance, expected_type) }
 
-          JSONSchema.result_with_validation_error(
+          context.add_error(
             "Property `#{path.join('.')}` must be of type #{type_to_sentence(schema['type'])} (#{value_type_error(instance)})",
             path: path,
             keyword: "type",

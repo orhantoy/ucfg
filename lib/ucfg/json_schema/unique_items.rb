@@ -8,18 +8,18 @@ module Ucfg
       handles "uniqueItems"
 
       class << self
-        def validate(instance, schema, path:)
-          return unless schema.key?("uniqueItems")
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?("uniqueItems")
 
           unless [true, false].include?(schema["uniqueItems"])
-            return JSONSchema.schema_error(path, "uniqueItems", "must be a boolean")
+            return context.add_schema_error(path, "uniqueItems", "must be a boolean")
           end
 
-          return unless schema["uniqueItems"] == true
-          return unless instance.is_a?(Array)
-          return if instance.length == instance.uniq.length
+          return context unless schema["uniqueItems"] == true
+          return context unless instance.is_a?(Array)
+          return context if instance.length == instance.uniq.length
 
-          JSONSchema.result_with_validation_error(
+          context.add_error(
             "Property `#{path.join('.')}` must contain unique items",
             path: path,
             keyword: "uniqueItems",

@@ -8,16 +8,16 @@ module Ucfg
       handles "enum"
 
       class << self
-        def validate(instance, schema, path:)
-          return unless schema.key?("enum")
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?("enum")
 
           unless schema["enum"].is_a?(Array)
-            return JSONSchema.schema_error(path, "enum", "must be an array")
+            return context.add_schema_error(path, "enum", "must be an array")
           end
 
-          return if schema["enum"].include?(instance)
+          return context if schema["enum"].include?(instance)
 
-          JSONSchema.result_with_validation_error(
+          context.add_error(
             "Property `#{path.join('.')}` contains an unsupported value (provided `#{instance}`)",
             path: path,
             keyword: "enum",

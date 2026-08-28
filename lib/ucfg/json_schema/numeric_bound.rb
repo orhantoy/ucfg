@@ -11,38 +11,38 @@ module Ucfg
           handles(*definitions.map(&:first))
         end
 
-        def validate(instance, schema, path:)
-          schema_errors = invalid_keyword_errors(schema, path: path)
-          return schema_errors unless schema_errors.valid?
+        def validate(instance, schema, path:, context:)
+          valid_schema = validate_keywords(schema, path: path, context: context)
+          return context unless valid_schema
 
-          return unless instance.is_a?(Numeric)
-          return if handled_by_legacy_range?(schema)
+          return context unless instance.is_a?(Numeric)
+          return context if handled_by_legacy_range?(schema)
 
-          errors = @definitions.each_with_object([]) do |(keyword, operator, text), memo|
+          @definitions.each do |keyword, operator, text|
             next unless schema.key?(keyword)
             next if schema[keyword].public_send(operator, instance)
 
-            memo << ValidationError.new(
-              message: "Property `#{path.join('.')}` must be #{text} #{schema[keyword]} (provided #{instance})",
+            context.add_error(
+              "Property `#{path.join('.')}` must be #{text} #{schema[keyword]} (provided #{instance})",
               path: path,
               keyword: keyword,
             )
           end
-
-          return if errors.empty?
-
-          ValidationResult.new(error_details: errors)
+          context
         end
 
         private
 
-        def invalid_keyword_errors(schema, path:)
-          @definitions.each_with_object(JSONSchema.empty_result) do |(keyword, _, _), memo|
+        def validate_keywords(schema, path:, context:)
+          valid = true
+          @definitions.each do |keyword, _, _|
             next unless schema.key?(keyword)
             next if schema[keyword].is_a?(Numeric)
 
-            memo.merge!(JSONSchema.schema_error(path, keyword, "must be a number"))
+            context.add_schema_error(path, keyword, "must be a number")
+            valid = false
           end
+          valid
         end
 
         def handled_by_legacy_range?(schema)

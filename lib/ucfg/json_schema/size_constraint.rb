@@ -16,18 +16,18 @@ module Ucfg
           @provided_label = provided_label
         end
 
-        def validate(instance, schema, path:)
-          return unless schema.key?(@keyword)
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?(@keyword)
 
           limit = schema[@keyword]
           unless limit.is_a?(Integer) && limit >= 0
-            return JSONSchema.schema_error(path, @keyword, "must be a non-negative integer")
+            return context.add_schema_error(path, @keyword, "must be a non-negative integer")
           end
 
-          return unless instance.is_a?(@type)
-          return if instance.length.public_send(@operator, limit)
+          return context unless instance.is_a?(@type)
+          return context if instance.length.public_send(@operator, limit)
 
-          JSONSchema.result_with_validation_error(
+          context.add_error(
             "Property `#{path.join('.')}` must #{@requirement} #{limit} #{@unit} " \
             "(provided #{@provided_label}#{instance.length})",
             path: path,

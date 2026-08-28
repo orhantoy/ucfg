@@ -12,23 +12,23 @@ module Ucfg
           @mode = mode
         end
 
-        def validate(instance, schema, path:)
-          return unless schema.key?(@keyword)
+        def validate(instance, schema, path:, context:)
+          return context unless schema.key?(@keyword)
 
           subschemas = schema[@keyword]
           unless subschemas.is_a?(Array)
-            return JSONSchema.schema_error(path, @keyword, "must be an array of schemas")
+            return context.add_schema_error(path, @keyword, "must be an array of schemas")
           end
 
-          return validate_all(instance, subschemas, path: path) if @mode == :all
+          return validate_all(instance, subschemas, path: path, context: context) if @mode == :all
 
-          schema_errors = invalid_subschema_errors(subschemas, path: path)
-          return schema_errors unless schema_errors.valid?
+          valid_schemas = validate_subschemas(subschemas, path: path, context: context)
+          return context unless valid_schemas
 
           matches = matching_subschema_count(instance, subschemas, path: path)
-          return if valid_match_count?(matches)
+          return context if valid_match_count?(matches)
 
-          JSONSchema.result_with_validation_error(
+          context.add_error(
             failure_message(path, matches),
             path: path,
             keyword: @keyword,
@@ -37,28 +37,31 @@ module Ucfg
 
         private
 
-        def validate_all(instance, subschemas, path:)
-          subschemas.each_with_index.reduce(JSONSchema.empty_result) do |memo, (subschema, index)|
-            result =
-              if subschema.is_a?(Hash)
-                JSONSchema.validate_recursively(instance, subschema, path: path)
-              else
-                JSONSchema.schema_error(path + [@keyword], index, "must be an object")
-              end
-            JSONSchema.combine_results(memo, result)
+        def validate_all(instance, subschemas, path:, context:)
+          subschemas.each_with_index do |subschema, index|
+            if subschema.is_a?(Hash)
+              JSONSchema.validate_recursively(instance, subschema, path: path, context: context)
+            else
+              context.add_schema_error(path + [@keyword], index, "must be an object")
+            end
           end
+          context
         end
 
-        def invalid_subschema_errors(subschemas, path:)
-          subschemas.each_with_index.reduce(JSONSchema.empty_result) do |memo, (subschema, index)|
-            result = JSONSchema.schema_error(path + [@keyword], index, "must be an object") unless subschema.is_a?(Hash)
-            JSONSchema.combine_results(memo, result)
+        def validate_subschemas(subschemas, path:, context:)
+          valid = true
+          subschemas.each_with_index do |subschema, index|
+            next if subschema.is_a?(Hash)
+
+            context.add_schema_error(path + [@keyword], index, "must be an object")
+            valid = false
           end
+          valid
         end
 
         def matching_subschema_count(instance, subschemas, path:)
           subschemas.count do |subschema|
-            JSONSchema.validate_recursively(instance, subschema, path: path).valid?
+            JSONSchema.validate_recursively(instance, subschema, path: path, context: ValidationContext.new).valid?
           end
         end
 

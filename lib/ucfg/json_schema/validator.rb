@@ -11,7 +11,7 @@ module Ucfg
           @keywords || []
         end
 
-        def validate(_instance, _schema, path:)
+        def validate(_instance, _schema, path:, context:)
           raise NotImplementedError, "#{name} must implement .validate"
         end
       end
