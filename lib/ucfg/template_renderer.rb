@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "erb"
+require "ucfg/error"
 require "ucfg/env_expander"
 
 module Ucfg

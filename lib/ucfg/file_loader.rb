@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "ucfg/error"
+
 module Ucfg
   module FileLoader
     class << self

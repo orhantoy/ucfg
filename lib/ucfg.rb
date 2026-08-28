@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "ucfg/version"
+require "ucfg/error"
 require "ucfg/json_schema"
 require "ucfg/validation_error"
 require "ucfg/validation_result"
@@ -12,8 +13,6 @@ require "ucfg/yaml_loader"
 require "ucfg/config_merger"
 
 module Ucfg
-  class Error < StandardError; end
-
   def self.load_yaml(source, erb: false, env: false, env_parsers: {})
     raise Error, "ERB and environment expansion cannot be enabled together" if erb && env
     return YAMLLoader.load(source, env: env, env_parsers: env_parsers) unless erb

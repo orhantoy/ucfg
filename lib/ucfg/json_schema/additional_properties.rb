@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "ucfg/json_schema"
+require "ucfg/json_schema/validation"
 
 module Ucfg
   module JSONSchema
