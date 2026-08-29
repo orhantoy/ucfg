@@ -6,6 +6,7 @@ gemspec
 
 group :development do
   gem "bundler", "~> 2.6"
+  gem "parallel", "< 2"
   gem "rake", "~> 13.0"
   gem "rspec", "~> 3.13"
   gem "rubocop", "~> 1.75"

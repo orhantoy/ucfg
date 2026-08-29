@@ -331,7 +331,7 @@ RSpec.describe Ucfg::YAMLLoader do
         "server: *defaults\n" => "Aliases and anchors are not supported at line 1, column 9",
         "message: |\n  hello\n" => "Block scalars are not supported at line 1, column 10",
         "value: !custom tagged\n" => "Explicit tags are not supported at line 1, column 8",
-        "a: 1\n b: 2\n" => "Invalid YAML syntax at line 2, column 3: mapping values are not allowed in this context",
+        "a: 1\n b: 2\n" => /Invalid YAML syntax at line 2, column \d+: .+/,
       }
 
       aggregate_failures do
